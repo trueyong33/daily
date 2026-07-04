@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>루틴 스탬프</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="루틴스탬프">
+<meta name="theme-color" content="#1F3B32">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -34,7 +39,6 @@
   }
   #app{max-width:640px;margin:0 auto;padding:28px 18px 80px;}
 
-  /* header — passport cover */
   .cover{
     background:linear-gradient(160deg, var(--cover), var(--cover-2));
     color:#EFE9D6;border-radius:14px;padding:22px 22px 18px;
@@ -56,7 +60,6 @@
   }
   .cover .stat-line b{color:#EFE9D6;font-size:14px;}
 
-  /* tabs */
   .tabs{display:flex;gap:6px;margin:16px 0 18px;border-bottom:1px solid var(--line);}
   .tab-btn{
     flex:1;background:none;border:none;padding:11px 6px;font-family:var(--font-body);
@@ -76,7 +79,6 @@
   }
   .panel-title .cnt{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);font-weight:400;}
 
-  /* setup form */
   .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}
   .field input[type=text]{
     width:100%;background:var(--paper);border:1px solid var(--line);border-radius:8px;
@@ -115,7 +117,6 @@
   .habit-card.editing{border-color:var(--gold);background:#EFE6C6;}
   .empty-note{color:var(--muted);font-size:13px;text-align:center;padding:20px 6px;line-height:1.7;}
 
-  /* calendar */
   .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
   .cal-nav button{
     background:none;border:1px solid var(--line);border-radius:7px;width:30px;height:30px;
@@ -142,7 +143,6 @@
   .cal-cell .dot.done{background:var(--green);}
   .cal-cell:hover{border-color:var(--gold);}
 
-  /* today's list */
   .day-header{
     font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-bottom:12px;
     display:flex;align-items:baseline;gap:8px;
@@ -164,7 +164,6 @@
   .stamp-btn.o.active{border-style:solid;border-color:var(--green);color:var(--green);background:#E4ECE1;transform:rotate(-6deg);box-shadow:0 2px 0 var(--green);}
   .stamp-btn.x.active{border-style:solid;border-color:var(--red);color:var(--red);background:#F1DFDB;transform:rotate(6deg);box-shadow:0 2px 0 var(--red);}
 
-  /* report */
   .bar-row{margin-bottom:14px;}
   .bar-row .top-line{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
   .bar-row .top-line .nm{font-weight:600;}
@@ -196,21 +195,21 @@
   </div>
 
   <div id="view"></div>
-  <div class="disclaimer">모든 데이터는 이 기기(계정)에만 저장돼요.</div>
+  <div class="disclaimer">모든 데이터는 이 기기의 이 브라우저(앱)에만 저장돼요. 앱을 지우거나 브라우저 데이터를 삭제하면 함께 사라져요.</div>
 </div>
 
 <script>
 const MAX_HABITS = 20;
 const DOW_LABELS_MON_FIRST = ["월","화","수","목","금","토","일"];
-const DOW_INDEX_MON_FIRST  = [1,2,3,4,5,6,0]; // maps to Date.getDay()
+const DOW_INDEX_MON_FIRST  = [1,2,3,4,5,6,0];
 const CAL_DOW_SUN_FIRST = ["일","월","화","수","목","금","토"];
 
 let habits = [];
-let completions = {}; // key: `${dateStr}|${habitId}` -> 'O' | 'X'
+let completions = {};
 let currentTab = "today";
 let pendingDays = new Set();
 let editingHabitId = null;
-let viewYear, viewMonth; // 0-11
+let viewYear, viewMonth;
 let selectedDate;
 
 function todayStr(){ return fmtDate(new Date()); }
@@ -222,22 +221,23 @@ function escapeHtml(s){
 }
 function uid(){ return "h_"+Date.now()+"_"+Math.random().toString(36).slice(2,7); }
 
+const LS_PREFIX = "routine-stamp:";
 async function loadData(){
   try{
-    const res = await window.storage.get("habits", false);
-    habits = res && res.value ? JSON.parse(res.value) : [];
+    const raw = localStorage.getItem(LS_PREFIX+"habits");
+    habits = raw ? JSON.parse(raw) : [];
   }catch(e){ habits = []; }
   try{
-    const res = await window.storage.get("completions", false);
-    completions = res && res.value ? JSON.parse(res.value) : {};
+    const raw = localStorage.getItem(LS_PREFIX+"completions");
+    completions = raw ? JSON.parse(raw) : {};
   }catch(e){ completions = {}; }
 }
 async function saveHabits(){
-  try{ await window.storage.set("habits", JSON.stringify(habits), false); }
+  try{ localStorage.setItem(LS_PREFIX+"habits", JSON.stringify(habits)); }
   catch(e){ console.warn("habits 저장 실패:", e); }
 }
 async function saveCompletions(){
-  try{ await window.storage.set("completions", JSON.stringify(completions), false); }
+  try{ localStorage.setItem(LS_PREFIX+"completions", JSON.stringify(completions)); }
   catch(e){ console.warn("completions 저장 실패:", e); }
 }
 
@@ -282,7 +282,6 @@ function renderCoverStats(){
   `;
 }
 
-/* ---------------- 설정 ---------------- */
 function setupHtml(){
   const atCap = habits.length >= MAX_HABITS;
   const editingHabit = editingHabitId ? habits.find(h=>h.id===editingHabitId) : null;
@@ -409,7 +408,6 @@ function bindSetup(){
   });
 }
 
-/* ---------------- 오늘 (캘린더) ---------------- */
 function todayHtml(){
   return `
     <div class="panel">
@@ -431,7 +429,7 @@ function todayHtml(){
 
 function calendarCellsHtml(){
   const first = new Date(viewYear, viewMonth, 1);
-  const leadBlanks = first.getDay(); // 0=일요일 시작
+  const leadBlanks = first.getDay();
   const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
   const t = todayStr();
   let cells = "";
@@ -507,7 +505,6 @@ function bindToday(){
   });
 }
 
-/* ---------------- 리포트 ---------------- */
 function reportHtml(){
   if(habits.length===0){
     return `<div class="panel"><div class="empty-note">루틴을 먼저 설정하면 여기에 기록이 쌓여요.</div></div>`;
@@ -553,7 +550,6 @@ function heatmapHtml(){
     d.setDate(d.getDate()-i);
     days.push(d);
   }
-  // 일요일 시작 기준으로 앞부분 정렬 맞추기
   const lead = days[0].getDay();
   let cells = "";
   for(let i=0;i<lead;i++) cells += `<div class="heat-cell" style="visibility:hidden;"></div>`;
@@ -572,7 +568,7 @@ function heatmapHtml(){
   return `<div class="heat-grid">${cells}</div>`;
 }
 
-function bindReport(){ /* 리포트 탭은 클릭 상호작용 없음 */ }
+function bindReport(){ }
 
 init();
 </script>
