@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family:sans-serif;padding:24px;font-size:18px;line-height:1.8;">
+  <h2>저장소 테스트</h2>
+  <div id="result" style="padding:12px;background:#eee;border-radius:8px;"></div>
+  <button onclick="doWrite()" style="margin-top:16px;padding:12px 20px;font-size:16px;">지금 값 저장하기</button>
+  <script>
+    function show(){
+      const el = document.getElementById("result");
+      try{
+        const v = localStorage.getItem("mytest");
+        el.textContent = v ? ("저장된 값 있음: " + v) : "저장된 값 없음 (null)";
+      }catch(e){
+        el.textContent = "에러 발생: " + e.message;
+      }
+    }
+    function doWrite(){
+      try{
+        localStorage.setItem("mytest", "테스트-" + new Date().toLocaleTimeString());
+        show();
+      }catch(e){
+        document.getElementById("result").textContent = "쓰기 에러: " + e.message;
+      }
+    }
+    show();
+  </script>
+</body>
+</html>
