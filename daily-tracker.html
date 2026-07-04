@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>루틴 스탬프</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7E2CE;
+    --paper-2:#DBD5BC;
+    --cover:#1F3B32;
+    --cover-2:#294A3F;
+    --ink:#242220;
+    --muted:#6B6455;
+    --line:#C7BFA4;
+    --gold:#B8902E;
+    --green:#3F6B45;
+    --red:#A6362B;
+    --font-display:"Fraunces",serif;
+    --font-body:"Work Sans",-apple-system,sans-serif;
+    --font-mono:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:26px 26px;
+    background-attachment:fixed;
+  }
+  #app{max-width:640px;margin:0 auto;padding:28px 18px 80px;}
+
+  /* header — passport cover */
+  .cover{
+    background:linear-gradient(160deg, var(--cover), var(--cover-2));
+    color:#EFE9D6;border-radius:14px;padding:22px 22px 18px;
+    box-shadow:0 10px 24px -12px rgba(31,59,50,.55);
+    position:relative;overflow:hidden;
+  }
+  .cover::after{
+    content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0 2px, transparent 2px 14px);
+    pointer-events:none;
+  }
+  .cover h1{
+    font-family:var(--font-display);font-weight:700;font-size:26px;margin:0 0 3px;
+    letter-spacing:.01em;
+  }
+  .cover .tag{font-family:var(--font-mono);font-size:11.5px;color:#C9C2A1;letter-spacing:.03em;}
+  .cover .stat-line{
+    margin-top:14px;display:flex;gap:18px;font-family:var(--font-mono);font-size:12px;color:#D8D2B8;
+  }
+  .cover .stat-line b{color:#EFE9D6;font-size:14px;}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin:16px 0 18px;border-bottom:1px solid var(--line);}
+  .tab-btn{
+    flex:1;background:none;border:none;padding:11px 6px;font-family:var(--font-body);
+    font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+    margin-bottom:-1px;transition:color .15s;
+  }
+  .tab-btn.active{color:var(--cover);border-bottom-color:var(--gold);}
+  .tab-btn:hover{color:var(--ink);}
+
+  .panel{
+    background:var(--paper-2);border:1px solid var(--line);border-radius:12px;
+    padding:18px;margin-bottom:14px;
+  }
+  .panel-title{
+    font-family:var(--font-display);font-weight:600;font-size:15.5px;margin:0 0 12px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .panel-title .cnt{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);font-weight:400;}
+
+  /* setup form */
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}
+  .field input[type=text]{
+    width:100%;background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:10px 12px;font-family:var(--font-body);font-size:14.5px;color:var(--ink);outline:none;
+  }
+  .field input[type=text]:focus{border-color:var(--gold);}
+  .day-toggles{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+  .day-chip{
+    font-family:var(--font-mono);font-size:12.5px;font-weight:600;color:var(--muted);
+    background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:7px 0;
+    width:38px;text-align:center;cursor:pointer;user-select:none;transition:.12s;
+  }
+  .day-chip.on{background:var(--cover);color:#EFE9D6;border-color:var(--cover);}
+  .add-row{margin-top:14px;display:flex;justify-content:flex-end;gap:8px;align-items:center;}
+  .warn-msg{font-size:12px;color:var(--red);font-family:var(--font-mono);}
+  .btn{
+    background:var(--gold);color:#2A2110;border:none;border-radius:8px;padding:10px 18px;
+    font-weight:700;font-size:13.5px;cursor:pointer;font-family:var(--font-body);
+  }
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn.ghost{background:none;border:1px solid var(--line);color:var(--muted);}
+
+  .habit-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .habit-card{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+  }
+  .habit-card .name{font-weight:600;font-size:14px;}
+  .habit-card .days{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.02em;}
+  .del-btn{
+    background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;
+    padding:4px 6px;border-radius:6px;
+  }
+  .del-btn:hover{color:var(--red);background:rgba(166,54,43,.08);}
+  .edit-btn:hover{color:var(--gold);background:rgba(184,144,46,.1);}
+  .habit-card.editing{border-color:var(--gold);background:#EFE6C6;}
+  .empty-note{color:var(--muted);font-size:13px;text-align:center;padding:20px 6px;line-height:1.7;}
+
+  /* calendar */
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cal-nav button{
+    background:none;border:1px solid var(--line);border-radius:7px;width:30px;height:30px;
+    cursor:pointer;color:var(--cover);font-size:14px;font-weight:700;
+  }
+  .cal-nav .month-label{font-family:var(--font-display);font-weight:700;font-size:16px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-dow{
+    text-align:center;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);
+    padding-bottom:4px;font-weight:600;
+  }
+  .cal-cell{
+    aspect-ratio:1;border-radius:8px;border:1px solid transparent;background:var(--paper);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    cursor:pointer;position:relative;
+  }
+  .cal-cell.blank{visibility:hidden;pointer-events:none;}
+  .cal-cell .d{font-family:var(--font-mono);font-size:12.5px;font-weight:600;}
+  .cal-cell.today .d{color:var(--gold);}
+  .cal-cell.selected{border-color:var(--gold);background:#EFE6C6;}
+  .cal-cell .dot{width:16px;height:3px;border-radius:2px;background:var(--line);}
+  .cal-cell .dot.none{background:var(--line);}
+  .cal-cell .dot.partial{background:var(--gold);}
+  .cal-cell .dot.done{background:var(--green);}
+  .cal-cell:hover{border-color:var(--gold);}
+
+  /* today's list */
+  .day-header{
+    font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-bottom:12px;
+    display:flex;align-items:baseline;gap:8px;
+  }
+  .day-header .big{font-family:var(--font-display);font-size:19px;color:var(--ink);font-weight:600;}
+  .todo-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:11px 4px;border-bottom:1px solid var(--line);
+  }
+  .todo-row:last-child{border-bottom:none;}
+  .todo-row .t-name{font-size:14.5px;font-weight:600;}
+  .stamp-group{display:flex;gap:8px;}
+  .stamp-btn{
+    width:38px;height:38px;border-radius:50%;border:2px dashed var(--line);background:var(--paper);
+    font-family:var(--font-mono);font-weight:700;font-size:15px;cursor:pointer;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;transition:transform .12s;
+  }
+  .stamp-btn:hover{transform:scale(1.06);}
+  .stamp-btn.o.active{border-style:solid;border-color:var(--green);color:var(--green);background:#E4ECE1;transform:rotate(-6deg);box-shadow:0 2px 0 var(--green);}
+  .stamp-btn.x.active{border-style:solid;border-color:var(--red);color:var(--red);background:#F1DFDB;transform:rotate(6deg);box-shadow:0 2px 0 var(--red);}
+
+  /* report */
+  .bar-row{margin-bottom:14px;}
+  .bar-row .top-line{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+  .bar-row .top-line .nm{font-weight:600;}
+  .bar-row .top-line .pct{font-family:var(--font-mono);color:var(--muted);}
+  .bar-track{height:9px;border-radius:5px;background:var(--paper);border:1px solid var(--line);overflow:hidden;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:5px;}
+  .bar-sub{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-top:4px;}
+
+  .heat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px;}
+  .heat-cell{aspect-ratio:1;border-radius:5px;border:1px solid var(--line);}
+  .heat-legend{display:flex;gap:10px;align-items:center;margin-top:10px;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);}
+  .heat-legend .sq{width:11px;height:11px;border-radius:3px;border:1px solid var(--line);display:inline-block;margin-right:4px;vertical-align:-1px;}
+
+  .disclaimer{font-size:11px;color:var(--muted);text-align:center;margin-top:20px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="cover">
+    <h1>루틴 스탬프</h1>
+    <div class="tag">DAILY ROUTINE PASSPORT</div>
+    <div class="stat-line" id="coverStats"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn" data-tab="setup">설정</button>
+    <button class="tab-btn" data-tab="today">오늘</button>
+    <button class="tab-btn" data-tab="report">리포트</button>
+  </div>
+
+  <div id="view"></div>
+  <div class="disclaimer">모든 데이터는 이 기기(계정)에만 저장돼요.</div>
+</div>
+
+<script>
+const MAX_HABITS = 20;
+const DOW_LABELS_MON_FIRST = ["월","화","수","목","금","토","일"];
+const DOW_INDEX_MON_FIRST  = [1,2,3,4,5,6,0]; // maps to Date.getDay()
+const CAL_DOW_SUN_FIRST = ["일","월","화","수","목","금","토"];
+
+let habits = [];
+let completions = {}; // key: `${dateStr}|${habitId}` -> 'O' | 'X'
+let currentTab = "today";
+let pendingDays = new Set();
+let editingHabitId = null;
+let viewYear, viewMonth; // 0-11
+let selectedDate;
+
+function todayStr(){ return fmtDate(new Date()); }
+function fmtDate(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function escapeHtml(s){
+  return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function uid(){ return "h_"+Date.now()+"_"+Math.random().toString(36).slice(2,7); }
+
+async function loadData(){
+  try{
+    const res = await window.storage.get("habits", false);
+    habits = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){ habits = []; }
+  try{
+    const res = await window.storage.get("completions", false);
+    completions = res && res.value ? JSON.parse(res.value) : {};
+  }catch(e){ completions = {}; }
+}
+async function saveHabits(){
+  try{ await window.storage.set("habits", JSON.stringify(habits), false); }
+  catch(e){ console.warn("habits 저장 실패:", e); }
+}
+async function saveCompletions(){
+  try{ await window.storage.set("completions", JSON.stringify(completions), false); }
+  catch(e){ console.warn("completions 저장 실패:", e); }
+}
+
+function getHabitsForDate(dateObj){
+  const dow = dateObj.getDay();
+  return habits.filter(h => h.days.includes(dow));
+}
+
+function init(){
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
+  selectedDate = todayStr();
+
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ currentTab = btn.dataset.tab; render(); });
+  });
+
+  loadData().then(render);
+}
+
+function render(){
+  document.querySelectorAll(".tab-btn").forEach(b=> b.classList.toggle("active", b.dataset.tab===currentTab));
+  renderCoverStats();
+  const view = document.getElementById("view");
+  if(currentTab==="setup") view.innerHTML = setupHtml();
+  else if(currentTab==="today") view.innerHTML = todayHtml();
+  else view.innerHTML = reportHtml();
+
+  if(currentTab==="setup") bindSetup();
+  else if(currentTab==="today") bindToday();
+  else bindReport();
+}
+
+function renderCoverStats(){
+  const el = document.getElementById("coverStats");
+  const todaysHabits = getHabitsForDate(new Date());
+  const doneToday = todaysHabits.filter(h => completions[selectedDate+"|"+h.id]==="O").length;
+  el.innerHTML = `
+    <span>루틴 <b>${habits.length}</b>/${MAX_HABITS}</span>
+    <span>오늘 <b>${doneToday}</b>/${todaysHabits.length}</span>
+  `;
+}
+
+/* ---------------- 설정 ---------------- */
+function setupHtml(){
+  const atCap = habits.length >= MAX_HABITS;
+  const editingHabit = editingHabitId ? habits.find(h=>h.id===editingHabitId) : null;
+  const preselectDays = editingHabit ? editingHabit.days : [];
+  const formDisabled = !editingHabit && atCap;
+
+  return `
+    <div class="panel">
+      <div class="panel-title">${editingHabit ? "루틴 수정" : "새 루틴 추가"} <span class="cnt">${habits.length}/${MAX_HABITS}</span></div>
+      <div class="field">
+        <label>루틴 이름</label>
+        <input type="text" id="habitNameInput" placeholder="예: 러닝 40분" maxlength="30" value="${editingHabit?escapeHtml(editingHabit.name):""}" ${formDisabled?"disabled":""}>
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label>반복할 요일</label>
+        <div class="day-toggles" id="dayToggles">
+          ${DOW_LABELS_MON_FIRST.map((lab,i)=>{
+            const dow = DOW_INDEX_MON_FIRST[i];
+            return `<div class="day-chip ${preselectDays.includes(dow)?"on":""}" data-dow="${dow}">${lab}</div>`;
+          }).join("")}
+        </div>
+      </div>
+      <div class="add-row">
+        ${formDisabled ? `<span class="warn-msg">최대 ${MAX_HABITS}개까지 설정할 수 있어요.</span>` : ""}
+        ${editingHabit
+          ? `<button class="btn ghost" id="cancelEditBtn">취소</button><button class="btn" id="saveEditBtn">저장</button>`
+          : `<button class="btn" id="addHabitBtn" ${formDisabled?"disabled":""}>추가</button>`
+        }
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">내 루틴 목록</div>
+      ${habits.length===0
+        ? `<div class="empty-note">아직 설정된 루틴이 없어요.<br>위에서 첫 루틴을 추가해보세요.</div>`
+        : `<div class="habit-list">
+            ${habits.map(h=>`
+              <div class="habit-card ${h.id===editingHabitId?"editing":""}" data-id="${h.id}">
+                <div>
+                  <div class="name">${escapeHtml(h.name)}</div>
+                  <div class="days">${sortedDayLabel(h.days)}</div>
+                </div>
+                <div style="display:flex;gap:2px;">
+                  <button class="del-btn edit-btn" data-edit="${h.id}" title="수정">✎</button>
+                  <button class="del-btn" data-del="${h.id}" title="삭제">×</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>`
+      }
+    </div>
+  `;
+}
+
+function sortedDayLabel(days){
+  return DOW_INDEX_MON_FIRST.filter(d=>days.includes(d)).map(d=>DOW_LABELS_MON_FIRST[DOW_INDEX_MON_FIRST.indexOf(d)]).join(" · ");
+}
+
+function bindSetup(){
+  const editingHabit = editingHabitId ? habits.find(h=>h.id===editingHabitId) : null;
+  pendingDays = new Set(editingHabit ? editingHabit.days : []);
+  const toggles = document.getElementById("dayToggles");
+  if(toggles){
+    toggles.querySelectorAll(".day-chip").forEach(chip=>{
+      chip.addEventListener("click", ()=>{
+        const dow = Number(chip.dataset.dow);
+        if(pendingDays.has(dow)){ pendingDays.delete(dow); chip.classList.remove("on"); }
+        else{ pendingDays.add(dow); chip.classList.add("on"); }
+      });
+    });
+  }
+  const addBtn = document.getElementById("addHabitBtn");
+  if(addBtn){
+    addBtn.addEventListener("click", async ()=>{
+      const nameInput = document.getElementById("habitNameInput");
+      const name = nameInput.value.trim();
+      if(!name){ nameInput.focus(); return; }
+      if(pendingDays.size===0){ alert("반복할 요일을 하나 이상 선택해주세요."); return; }
+      if(habits.length >= MAX_HABITS) return;
+      habits.push({ id: uid(), name, days: Array.from(pendingDays) });
+      await saveHabits();
+      render();
+    });
+  }
+  const saveEditBtn = document.getElementById("saveEditBtn");
+  if(saveEditBtn){
+    saveEditBtn.addEventListener("click", async ()=>{
+      const nameInput = document.getElementById("habitNameInput");
+      const name = nameInput.value.trim();
+      if(!name){ nameInput.focus(); return; }
+      if(pendingDays.size===0){ alert("반복할 요일을 하나 이상 선택해주세요."); return; }
+      const h = habits.find(x=>x.id===editingHabitId);
+      if(h){ h.name = name; h.days = Array.from(pendingDays); }
+      await saveHabits();
+      editingHabitId = null;
+      render();
+    });
+  }
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+  if(cancelEditBtn){
+    cancelEditBtn.addEventListener("click", ()=>{
+      editingHabitId = null;
+      render();
+    });
+  }
+  document.querySelectorAll("[data-edit]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      editingHabitId = btn.dataset.edit;
+      render();
+      const nameInput = document.getElementById("habitNameInput");
+      if(nameInput) nameInput.focus();
+    });
+  });
+  document.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.dataset.del;
+      if(editingHabitId===id) editingHabitId = null;
+      habits = habits.filter(h=>h.id!==id);
+      Object.keys(completions).forEach(k=>{ if(k.endsWith("|"+id)) delete completions[k]; });
+      await saveHabits();
+      await saveCompletions();
+      render();
+    });
+  });
+}
+
+/* ---------------- 오늘 (캘린더) ---------------- */
+function todayHtml(){
+  return `
+    <div class="panel">
+      <div class="cal-nav">
+        <button id="prevMonth">‹</button>
+        <div class="month-label">${viewYear}년 ${viewMonth+1}월</div>
+        <button id="nextMonth">›</button>
+      </div>
+      <div class="cal-grid">
+        ${CAL_DOW_SUN_FIRST.map(l=>`<div class="cal-dow">${l}</div>`).join("")}
+        ${calendarCellsHtml()}
+      </div>
+    </div>
+    <div class="panel">
+      ${todoListHtml()}
+    </div>
+  `;
+}
+
+function calendarCellsHtml(){
+  const first = new Date(viewYear, viewMonth, 1);
+  const leadBlanks = first.getDay(); // 0=일요일 시작
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const t = todayStr();
+  let cells = "";
+  for(let i=0;i<leadBlanks;i++) cells += `<div class="cal-cell blank"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const dObj = new Date(viewYear, viewMonth, day);
+    const dStr = fmtDate(dObj);
+    const scheduled = getHabitsForDate(dObj);
+    let dotClass = "none";
+    if(scheduled.length>0){
+      const doneCount = scheduled.filter(h=>completions[dStr+"|"+h.id]==="O").length;
+      if(doneCount===0) dotClass="none";
+      else if(doneCount===scheduled.length) dotClass="done";
+      else dotClass="partial";
+    }
+    cells += `<div class="cal-cell ${dStr===t?"today":""} ${dStr===selectedDate?"selected":""}" data-date="${dStr}">
+      <div class="d">${day}</div>
+      ${scheduled.length>0 ? `<div class="dot ${dotClass}"></div>` : `<div class="dot" style="background:transparent;"></div>`}
+    </div>`;
+  }
+  return cells;
+}
+
+function todoListHtml(){
+  const dObj = new Date(selectedDate+"T00:00:00");
+  const weekdayLabel = "일월화수목금토"[dObj.getDay()];
+  const scheduled = getHabitsForDate(dObj);
+  return `
+    <div class="day-header"><span class="big">${dObj.getMonth()+1}월 ${dObj.getDate()}일</span><span>(${weekdayLabel}요일)</span></div>
+    ${scheduled.length===0
+      ? `<div class="empty-note">이 날은 예정된 루틴이 없어요.</div>`
+      : scheduled.map(h=>{
+          const key = selectedDate+"|"+h.id;
+          const state = completions[key];
+          return `
+          <div class="todo-row">
+            <div class="t-name">${escapeHtml(h.name)}</div>
+            <div class="stamp-group">
+              <button class="stamp-btn o ${state==="O"?"active":""}" data-habit="${h.id}" data-val="O">O</button>
+              <button class="stamp-btn x ${state==="X"?"active":""}" data-habit="${h.id}" data-val="X">X</button>
+            </div>
+          </div>`;
+        }).join("")
+    }
+  `;
+}
+
+function bindToday(){
+  document.getElementById("prevMonth").addEventListener("click", ()=>{
+    viewMonth--; if(viewMonth<0){ viewMonth=11; viewYear--; }
+    render();
+  });
+  document.getElementById("nextMonth").addEventListener("click", ()=>{
+    viewMonth++; if(viewMonth>11){ viewMonth=0; viewYear++; }
+    render();
+  });
+  document.querySelectorAll(".cal-cell[data-date]").forEach(cell=>{
+    cell.addEventListener("click", ()=>{
+      selectedDate = cell.dataset.date;
+      render();
+    });
+  });
+  document.querySelectorAll(".stamp-btn").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const habitId = btn.dataset.habit;
+      const val = btn.dataset.val;
+      const key = selectedDate+"|"+habitId;
+      completions[key] = (completions[key]===val) ? undefined : val;
+      if(completions[key]===undefined) delete completions[key];
+      await saveCompletions();
+      render();
+    });
+  });
+}
+
+/* ---------------- 리포트 ---------------- */
+function reportHtml(){
+  if(habits.length===0){
+    return `<div class="panel"><div class="empty-note">루틴을 먼저 설정하면 여기에 기록이 쌓여요.</div></div>`;
+  }
+  const stats = habits.map(h=>{
+    let o=0, x=0;
+    Object.keys(completions).forEach(k=>{
+      if(k.endsWith("|"+h.id)){ if(completions[k]==="O") o++; else if(completions[k]==="X") x++; }
+    });
+    const total = o+x;
+    const rate = total>0 ? Math.round((o/total)*100) : 0;
+    return { name:h.name, o, x, total, rate };
+  }).sort((a,b)=> b.rate-a.rate);
+
+  return `
+    <div class="panel">
+      <div class="panel-title">루틴별 달성률</div>
+      ${stats.map(s=>`
+        <div class="bar-row">
+          <div class="top-line"><span class="nm">${escapeHtml(s.name)}</span><span class="pct">${s.total>0? s.rate+"%" : "기록 없음"}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${s.rate}%;"></div></div>
+          <div class="bar-sub">O ${s.o} · X ${s.x}</div>
+        </div>
+      `).join("")}
+    </div>
+    <div class="panel">
+      <div class="panel-title">최근 5주 기록</div>
+      ${heatmapHtml()}
+      <div class="heat-legend">
+        <span><span class="sq" style="background:var(--paper-2);"></span>기록 없음</span>
+        <span><span class="sq" style="background:#E4ECE1;border-color:var(--green);"></span>부분 달성</span>
+        <span><span class="sq" style="background:var(--green);"></span>모두 달성</span>
+      </div>
+    </div>
+  `;
+}
+
+function heatmapHtml(){
+  const days = [];
+  const today = new Date();
+  for(let i=34;i>=0;i--){
+    const d = new Date(today);
+    d.setDate(d.getDate()-i);
+    days.push(d);
+  }
+  // 일요일 시작 기준으로 앞부분 정렬 맞추기
+  const lead = days[0].getDay();
+  let cells = "";
+  for(let i=0;i<lead;i++) cells += `<div class="heat-cell" style="visibility:hidden;"></div>`;
+  days.forEach(d=>{
+    const dStr = fmtDate(d);
+    const scheduled = getHabitsForDate(d);
+    let bg = "var(--paper-2)", border="var(--line)";
+    if(scheduled.length>0 && d<=today){
+      const doneCount = scheduled.filter(h=>completions[dStr+"|"+h.id]==="O").length;
+      if(doneCount===0){ bg="var(--paper-2)"; }
+      else if(doneCount===scheduled.length){ bg="var(--green)"; border="var(--green)"; }
+      else { bg="#E4ECE1"; border="var(--green)"; }
+    }
+    cells += `<div class="heat-cell" style="background:${bg};border-color:${border};" title="${dStr}"></div>`;
+  });
+  return `<div class="heat-grid">${cells}</div>`;
+}
+
+function bindReport(){ /* 리포트 탭은 클릭 상호작용 없음 */ }
+
+init();
+</script>
+</body>
+</html>
