@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 리스트</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="오늘의 리스트">
+<meta name="theme-color" content="#1E2A2F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEEE6;
+    --paper-2:#E2E4D6;
+    --ink:#1E2A2F;
+    --muted:#69726E;
+    --line:#CBCFBF;
+    --teal:#2F6F62;
+    --orange:#C1542D;
+    --font-display:"Space Grotesk",sans-serif;
+    --font-body:"Inter",-apple-system,sans-serif;
+    --font-mono:"IBM Plex Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    background-image:repeating-linear-gradient(to bottom, transparent 0 31px, var(--line) 31px 32px);
+    background-attachment:local;
+  }
+  #app{max-width:640px;margin:0 auto;padding:26px 18px 80px;}
+
+  .cover{
+    background:var(--ink);color:#EDEEE6;border-radius:14px;padding:20px 22px 16px;
+    box-shadow:0 10px 22px -12px rgba(30,42,47,.5);
+  }
+  .cover h1{font-family:var(--font-display);font-weight:700;font-size:24px;margin:0 0 3px;}
+  .cover .tag{font-family:var(--font-mono);font-size:11px;color:#A9B0AC;letter-spacing:.04em;}
+
+  .tabs{display:flex;gap:6px;margin:16px 0 16px;border-bottom:1px solid var(--line);}
+  .tab-btn{
+    flex:1;background:none;border:none;padding:11px 6px;font-family:var(--font-body);
+    font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+    margin-bottom:-1px;transition:color .15s;
+  }
+  .tab-btn.active.todo{color:var(--teal);border-bottom-color:var(--teal);}
+  .tab-btn.active.shop{color:var(--orange);border-bottom-color:var(--orange);}
+
+  .panel{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;}
+  .panel-title{font-family:var(--font-display);font-weight:700;font-size:15px;margin:0 0 12px;}
+
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cal-nav button{background:none;border:1px solid var(--line);border-radius:7px;width:28px;height:28px;cursor:pointer;color:var(--ink);font-weight:700;}
+  .cal-nav .month-label{font-family:var(--font-display);font-weight:700;font-size:15px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-dow{text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--muted);padding-bottom:4px;font-weight:600;}
+  .cal-cell{aspect-ratio:1;border-radius:8px;border:1px solid transparent;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;}
+  .cal-cell.blank{visibility:hidden;pointer-events:none;}
+  .cal-cell .d{font-family:var(--font-mono);font-size:12px;font-weight:600;}
+  .cal-cell.today .d{color:var(--orange);}
+  .cal-cell.selected{border-color:var(--teal);background:#DCE7E1;}
+  .cal-cell .dot{width:6px;height:6px;border-radius:50%;background:transparent;}
+  .cal-cell .dot.pending{background:var(--orange);}
+  .cal-cell .dot.done{background:var(--teal);}
+
+  .day-header{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;align-items:baseline;gap:8px;}
+  .day-header .big{font-family:var(--font-display);font-size:18px;color:var(--ink);font-weight:700;}
+
+  .add-row{display:flex;gap:8px;margin-bottom:10px;}
+  .add-row input[type=text]{
+    flex:1;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+    font-family:var(--font-body);font-size:14.5px;color:var(--ink);outline:none;
+  }
+  .add-row input[type=text]:focus{border-color:var(--teal);}
+  .add-btn{border:none;border-radius:8px;padding:0 16px;font-weight:700;font-size:14px;cursor:pointer;color:#fff;}
+  .add-btn.todo{background:var(--teal);}
+  .add-btn.shop{background:var(--orange);}
+
+  .item-row{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);}
+  .item-row:last-child{border-bottom:none;}
+  .checkbox{
+    width:22px;height:22px;border-radius:6px;border:2px solid var(--line);background:var(--paper);
+    flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .checkbox.done.todo{background:var(--teal);border-color:var(--teal);}
+  .checkbox.done.shop{background:var(--orange);border-color:var(--orange);}
+  .checkbox svg{width:14px;height:14px;stroke:#fff;stroke-width:3;fill:none;display:none;}
+  .checkbox.done svg{display:block;}
+  .item-text{flex:1;font-size:14.5px;word-break:break-word;}
+  .item-text.done{color:var(--muted);text-decoration:line-through;}
+  .item-edit-input{
+    flex:1;font-size:14.5px;font-family:var(--font-body);border:1px solid var(--teal);border-radius:6px;
+    padding:6px 8px;outline:none;
+  }
+  .icon-btn{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:4px 6px;border-radius:6px;flex-shrink:0;}
+  .icon-btn:hover{background:rgba(0,0,0,.06);}
+  .icon-btn.danger:hover{color:var(--orange);}
+  .empty-note{color:var(--muted);font-size:13px;text-align:center;padding:18px 6px;line-height:1.7;}
+  .shop-footer{display:flex;justify-content:flex-end;margin-top:4px;}
+  .link-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="cover">
+    <h1>오늘의 리스트</h1>
+    <div class="tag">TO-DO &amp; SHOPPING</div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn todo" data-tab="todo">할 일</button>
+    <button class="tab-btn shop" data-tab="shop">장보기</button>
+  </div>
+  <div id="view"></div>
+</div>
+
+<script>
+const LS_PREFIX = "todo-shop:";
+let todos = [];
+let shopping = [];
+let currentTab = "todo";
+let viewYear, viewMonth;
+let selectedDate;
+let editingTodoId = null;
+let editingShopId = null;
+
+function todayStr(){ return fmtDate(new Date()); }
+function fmtDate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function uid(){ return "i_"+Date.now()+"_"+Math.random().toString(36).slice(2,7); }
+const CHECK_SVG = `<svg viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></svg>`;
+
+async function loadData(){
+  try{ todos = JSON.parse(localStorage.getItem(LS_PREFIX+"todos")) || []; }catch(e){ todos = []; }
+  try{ shopping = JSON.parse(localStorage.getItem(LS_PREFIX+"shopping")) || []; }catch(e){ shopping = []; }
+}
+function saveTodos(){ try{ localStorage.setItem(LS_PREFIX+"todos", JSON.stringify(todos)); }catch(e){ console.warn(e); } }
+function saveShopping(){ try{ localStorage.setItem(LS_PREFIX+"shopping", JSON.stringify(shopping)); }catch(e){ console.warn(e); } }
+
+function rollover(){
+  const today = todayStr();
+  const last = localStorage.getItem(LS_PREFIX+"lastRollover");
+  if(last === today) return;
+  let changed = false;
+  todos.forEach(t=>{
+    if(!t.done && t.date < today){ t.date = today; changed = true; }
+  });
+  localStorage.setItem(LS_PREFIX+"lastRollover", today);
+  if(changed) saveTodos();
+}
+
+function init(){
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
+  selectedDate = todayStr();
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ currentTab = btn.dataset.tab; render(); });
+  });
+  loadData().then(()=>{ rollover(); render(); });
+}
+
+function render(){
+  document.querySelectorAll(".tab-btn").forEach(b=> b.classList.toggle("active", b.dataset.tab===currentTab));
+  const view = document.getElementById("view");
+  if(currentTab==="todo"){ view.innerHTML = todoHtml(); bindTodo(); }
+  else { view.innerHTML = shopHtml(); bindShop(); }
+}
+
+function todoHtml(){
+  return `
+    <div class="panel">
+      <div class="cal-nav">
+        <button id="prevMonth">‹</button>
+        <div class="month-label">${viewYear}년 ${viewMonth+1}월</div>
+        <button id="nextMonth">›</button>
+      </div>
+      <div class="cal-grid">
+        ${["일","월","화","수","목","금","토"].map(l=>`<div class="cal-dow">${l}</div>`).join("")}
+        ${calendarCellsHtml()}
+      </div>
+    </div>
+    <div class="panel">
+      ${todoListHtml()}
+    </div>
+  `;
+}
+
+function calendarCellsHtml(){
+  const first = new Date(viewYear, viewMonth, 1);
+  const leadBlanks = first.getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const t = todayStr();
+  let cells = "";
+  for(let i=0;i<leadBlanks;i++) cells += `<div class="cal-cell blank"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const dStr = fmtDate(new Date(viewYear, viewMonth, day));
+    const dayItems = todos.filter(x=>x.date===dStr);
+    let dotClass = "";
+    if(dayItems.length>0){
+      const pending = dayItems.some(x=>!x.done);
+      dotClass = pending ? "pending" : "done";
+    }
+    cells += `<div class="cal-cell ${dStr===t?"today":""} ${dStr===selectedDate?"selected":""}" data-date="${dStr}">
+      <div class="d">${day}</div>
+      <div class="dot ${dotClass}"></div>
+    </div>`;
+  }
+  return cells;
+}
+
+function todoListHtml(){
+  const dObj = new Date(selectedDate+"T00:00:00");
+  const weekdayLabel = "일월화수목금토"[dObj.getDay()];
+  const items = todos.filter(t=>t.date===selectedDate);
+  const pending = items.filter(x=>!x.done);
+  const done = items.filter(x=>x.done);
+  return `
+    <div class="day-header"><span class="big">${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일</span><span>(${weekdayLabel})</span></div>
+    <div class="add-row">
+      <input type="text" id="todoInput" placeholder="할 일을 입력하세요" maxlength="60">
+      <button class="add-btn todo" id="addTodoBtn">추가</button>
+    </div>
+    ${items.length===0 ? `<div class="empty-note">이 날의 할 일이 없어요.</div>` : ""}
+    ${[...pending, ...done].map(t=>todoRowHtml(t)).join("")}
+  `;
+}
+
+function todoRowHtml(t){
+  if(editingTodoId===t.id){
+    return `<div class="item-row">
+      <div class="checkbox ${t.done?"done todo":""}"></div>
+      <input type="text" class="item-edit-input" id="editTodoInput" value="${escapeHtml(t.text)}" maxlength="60">
+      <button class="icon-btn" data-save-todo="${t.id}" title="저장">✔</button>
+      <button class="icon-btn" data-cancel-todo title="취소">✕</button>
+    </div>`;
+  }
+  return `<div class="item-row">
+    <div class="checkbox ${t.done?"done todo":""}" data-toggle-todo="${t.id}">${CHECK_SVG}</div>
+    <div class="item-text ${t.done?"done":""}">${escapeHtml(t.text)}</div>
+    <button class="icon-btn" data-edit-todo="${t.id}" title="수정">✎</button>
+    <button class="icon-btn danger" data-del-todo="${t.id}" title="삭제">×</button>
+  </div>`;
+}
+
+function bindTodo(){
+  document.getElementById("prevMonth").addEventListener("click", ()=>{
+    viewMonth--; if(viewMonth<0){ viewMonth=11; viewYear--; } render();
+  });
+  document.getElementById("nextMonth").addEventListener("click", ()=>{
+    viewMonth++; if(viewMonth>11){ viewMonth=0; viewYear++; } render();
+  });
+  document.querySelectorAll(".cal-cell[data-date]").forEach(cell=>{
+    cell.addEventListener("click", ()=>{ selectedDate = cell.dataset.date; editingTodoId=null; render(); });
+  });
+  const addBtn = document.getElementById("addTodoBtn");
+  const input = document.getElementById("todoInput");
+  const doAdd = ()=>{
+    const text = input.value.trim();
+    if(!text) return;
+    todos.push({ id: uid(), text, date: selectedDate, done:false });
+    saveTodos();
+    render();
+  };
+  addBtn.addEventListener("click", doAdd);
+  input.addEventListener("keydown", e=>{ if(e.key==="Enter") doAdd(); });
+
+  document.querySelectorAll("[data-toggle-todo]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const t = todos.find(x=>x.id===el.dataset.toggleTodo);
+      if(t){ t.done = !t.done; saveTodos(); render(); }
+    });
+  });
+  document.querySelectorAll("[data-edit-todo]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ editingTodoId = btn.dataset.editTodo; render();
+      const el = document.getElementById("editTodoInput"); if(el){ el.focus(); el.select(); }
+    });
+  });
+  document.querySelectorAll("[data-cancel-todo]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ editingTodoId = null; render(); });
+  });
+  document.querySelectorAll("[data-save-todo]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const t = todos.find(x=>x.id===btn.dataset.saveTodo);
+      const el = document.getElementById("editTodoInput");
+      const val = el.value.trim();
+      if(t && val){ t.text = val; saveTodos(); }
+      editingTodoId = null; render();
+    });
+  });
+  document.querySelectorAll("[data-del-todo]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      todos = todos.filter(x=>x.id!==btn.dataset.delTodo);
+      saveTodos(); render();
+    });
+  });
+}
+
+function shopHtml(){
+  const pending = shopping.filter(x=>!x.done);
+  const done = shopping.filter(x=>x.done);
+  return `
+    <div class="panel">
+      <div class="panel-title">장보기 목록</div>
+      <div class="add-row">
+        <input type="text" id="shopInput" placeholder="예: 우유 2개" maxlength="60">
+        <button class="add-btn shop" id="addShopBtn">추가</button>
+      </div>
+      ${shopping.length===0 ? `<div class="empty-note">장보기 목록이 비어있어요.</div>` : ""}
+      ${[...pending, ...done].map(s=>shopRowHtml(s)).join("")}
+      ${done.length>0 ? `<div class="shop-footer"><button class="link-btn" id="clearDoneBtn">완료 항목 지우기 (${done.length})</button></div>` : ""}
+    </div>
+  `;
+}
+
+function shopRowHtml(s){
+  if(editingShopId===s.id){
+    return `<div class="item-row">
+      <div class="checkbox ${s.done?"done shop":""}"></div>
+      <input type="text" class="item-edit-input" id="editShopInput" value="${escapeHtml(s.text)}" maxlength="60">
+      <button class="icon-btn" data-save-shop="${s.id}" title="저장">✔</button>
+      <button class="icon-btn" data-cancel-shop title="취소">✕</button>
+    </div>`;
+  }
+  return `<div class="item-row">
+    <div class="checkbox ${s.done?"done shop":""}" data-toggle-shop="${s.id}">${CHECK_SVG}</div>
+    <div class="item-text ${s.done?"done":""}">${escapeHtml(s.text)}</div>
+    <button class="icon-btn" data-edit-shop="${s.id}" title="수정">✎</button>
+    <button class="icon-btn danger" data-del-shop="${s.id}" title="삭제">×</button>
+  </div>`;
+}
+
+function bindShop(){
+  const addBtn = document.getElementById("addShopBtn");
+  const input = document.getElementById("shopInput");
+  const doAdd = ()=>{
+    const text = input.value.trim();
+    if(!text) return;
+    shopping.push({ id: uid(), text, done:false });
+    saveShopping();
+    render();
+  };
+  addBtn.addEventListener("click", doAdd);
+  input.addEventListener("keydown", e=>{ if(e.key==="Enter") doAdd(); });
+
+  document.querySelectorAll("[data-toggle-shop]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const s = shopping.find(x=>x.id===el.dataset.toggleShop);
+      if(s){ s.done = !s.done; saveShopping(); render(); }
+    });
+  });
+  document.querySelectorAll("[data-edit-shop]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ editingShopId = btn.dataset.editShop; render();
+      const el = document.getElementById("editShopInput"); if(el){ el.focus(); el.select(); }
+    });
+  });
+  document.querySelectorAll("[data-cancel-shop]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ editingShopId = null; render(); });
+  });
+  document.querySelectorAll("[data-save-shop]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const s = shopping.find(x=>x.id===btn.dataset.saveShop);
+      const el = document.getElementById("editShopInput");
+      const val = el.value.trim();
+      if(s && val){ s.text = val; saveShopping(); }
+      editingShopId = null; render();
+    });
+  });
+  document.querySelectorAll("[data-del-shop]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      shopping = shopping.filter(x=>x.id!==btn.dataset.delShop);
+      saveShopping(); render();
+    });
+  });
+  const clearBtn = document.getElementById("clearDoneBtn");
+  if(clearBtn){
+    clearBtn.addEventListener("click", ()=>{
+      shopping = shopping.filter(x=>!x.done);
+      saveShopping(); render();
+    });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
