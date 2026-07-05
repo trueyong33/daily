@@ -38,4 +38,386 @@
   }
   .search-row input:focus{border-color:var(--accent);}
   .search-row button{
-    background:var(--accent);color:#fff;border:none;border-radius:999px;padding:0
+    background:var(--accent);color:#fff;border:none;border-radius:999px;padding:0 18px;
+    font-weight:700;font-size:13.5px;cursor:pointer;
+  }
+  .search-msg{font-size:12px;color:var(--warm);margin:-6px 0 10px 6px;min-height:16px;}
+
+  .hero{
+    background:linear-gradient(160deg, var(--accent), #5CA6E0);color:#fff;border-radius:18px;
+    padding:22px 22px 20px;margin-bottom:14px;position:relative;overflow:hidden;
+  }
+  .hero .loc{font-family:var(--font-display);font-weight:700;font-size:18px;}
+  .hero .sub{font-size:12px;color:#D9ECFB;margin-top:2px;}
+  .hero .temp-row{display:flex;align-items:center;gap:14px;margin-top:14px;}
+  .hero .emoji{font-size:52px;line-height:1;}
+  .hero .temp{font-family:var(--font-mono);font-weight:700;font-size:46px;line-height:1;}
+  .hero .desc{font-size:13px;color:#EAF4FC;margin-top:4px;}
+  .hero .meta{display:flex;gap:16px;margin-top:14px;font-family:var(--font-mono);font-size:12px;color:#DDEEFB;}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
+  .panel-title{font-family:var(--font-display);font-weight:700;font-size:14.5px;margin:0 0 10px;color:var(--ink);}
+
+  .day-tabs{display:flex;gap:6px;margin-bottom:12px;}
+  .day-tab{
+    flex:1;background:var(--sky);border:1px solid var(--line);border-radius:10px;padding:8px 4px;
+    text-align:center;font-family:var(--font-body);font-weight:600;font-size:12.5px;color:var(--muted);
+    cursor:pointer;
+  }
+  .day-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  .hourly-strip{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+  .hourly-strip::-webkit-scrollbar{height:4px;}
+  .hour-block{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:48px;}
+  .hour-block .hr{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);}
+  .hour-block .em{font-size:24px;}
+  .hour-block .t{font-family:var(--font-mono);font-size:13px;font-weight:600;}
+
+  .daily-row{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);}
+  .daily-row:last-child{border-bottom:none;}
+  .daily-row .dlabel{width:52px;flex-shrink:0;}
+  .daily-row .dlabel .dow{font-family:var(--font-body);font-weight:700;font-size:13.5px;}
+  .daily-row .dlabel .date{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);}
+  .daily-row .dem{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
+  .daily-row .pop{font-family:var(--font-mono);font-size:11px;color:var(--accent);width:38px;flex-shrink:0;text-align:right;}
+  .daily-row .range{flex:1;display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;}
+  .daily-row .range .lo{color:var(--muted);width:30px;text-align:right;}
+  .daily-row .range .hi{width:30px;}
+  .bar-track{flex:1;height:4px;border-radius:3px;background:var(--sky-2);position:relative;}
+  .bar-fill{position:absolute;height:100%;border-radius:3px;background:linear-gradient(90deg,#6FB8EE,var(--warm));}
+
+  .empty-note{color:var(--muted);font-size:13px;text-align:center;padding:24px 6px;}
+  .loading-note{color:var(--muted);font-size:13px;text-align:center;padding:24px 6px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="지역명을 입력하세요 (예: 부산, 제주)" maxlength="40">
+    <button id="searchBtn">검색</button>
+  </div>
+  <div class="search-msg" id="searchMsg"></div>
+  <div id="view"><div class="loading-note">날씨 정보를 불러오는 중…</div></div>
+</div>
+
+<script>
+let currentLoc = { name:"서울", admin:"대한민국", lat:37.5665, lon:126.9780 };
+let hourly = null;
+let daily = null;
+let currentWeather = null;
+let selectedDayIdx = 0;
+
+function weatherEmoji(code, isDay){
+  if(code===0) return isDay ? "☀️" : "🌙";
+  if(code===1) return isDay ? "🌤️" : "🌙";
+  if(code===2) return "⛅";
+  if(code===3) return "☁️";
+  if(code===45||code===48) return "🌫️";
+  if(code===51||code===53||code===55) return "🌦️";
+  if(code===56||code===57) return "🌧️";
+  if(code===61||code===63||code===65) return "🌧️";
+  if(code===66||code===67) return "🌧️";
+  if(code===71||code===73||code===75||code===77) return "❄️";
+  if(code===80||code===81||code===82) return "🌦️";
+  if(code===85||code===86) return "🌨️";
+  if(code===95||code===96||code===99) return "⛈️";
+  return "🌡️";
+}
+function weatherDesc(code){
+  const map = {0:"맑음",1:"대체로 맑음",2:"구름 조금",3:"흐림",45:"안개",48:"짙은 안개",
+    51:"약한 이슬비",53:"이슬비",55:"강한 이슬비",56:"약한 진눈깨비",57:"진눈깨비",
+    61:"약한 비",63:"비",65:"강한 비",66:"약한 얼음비",67:"얼음비",
+    71:"약한 눈",73:"눈",75:"강한 눈",77:"싸락눈",80:"약한 소나기",81:"소나기",82:"강한 소나기",
+    85:"약한 소낙눈",86:"소낙눈",95:"뇌우",96:"뇌우(약한 우박)",99:"뇌우(강한 우박)"};
+  return map[code] || "-";
+}
+function fmtHour(iso){
+  const h = new Date(iso).getHours();
+  return h===0 ? "0시" : h+"시";
+}
+function dowLabel(iso, idx){
+  if(idx===0) return "오늘";
+  if(idx===1) return "내일";
+  const d = new Date(iso+"T00:00:00");
+  return "일월화수목금토"[d.getDay()]+"요일";
+}
+function dateLabel(iso){
+  const d = new Date(iso+"T00:00:00");
+  return (d.getMonth()+1)+"/"+d.getDate();
+}
+
+const KOREA_CITIES = {
+  "서울":{name:"서울",admin:"서울특별시",lat:37.5665,lon:126.9780},
+  "부산":{name:"부산",admin:"부산광역시",lat:35.1796,lon:129.0756},
+  "대구":{name:"대구",admin:"대구광역시",lat:35.8714,lon:128.6014},
+  "인천":{name:"인천",admin:"인천광역시",lat:37.4563,lon:126.7052},
+  "광주":{name:"광주",admin:"광주광역시",lat:35.1595,lon:126.8526},
+  "대전":{name:"대전",admin:"대전광역시",lat:36.3504,lon:127.3845},
+  "울산":{name:"울산",admin:"울산광역시",lat:35.5384,lon:129.3114},
+  "세종":{name:"세종",admin:"세종특별자치시",lat:36.4801,lon:127.2890},
+  "수원":{name:"수원",admin:"경기도",lat:37.2636,lon:127.0286},
+  "성남":{name:"성남",admin:"경기도",lat:37.4201,lon:127.1267},
+  "고양":{name:"고양",admin:"경기도",lat:37.6584,lon:126.8320},
+  "용인":{name:"용인",admin:"경기도",lat:37.2411,lon:127.1776},
+  "부천":{name:"부천",admin:"경기도",lat:37.5035,lon:126.7660},
+  "안산":{name:"안산",admin:"경기도",lat:37.3219,lon:126.8309},
+  "안양":{name:"안양",admin:"경기도",lat:37.3943,lon:126.9568},
+  "남양주":{name:"남양주",admin:"경기도",lat:37.6360,lon:127.2165},
+  "화성":{name:"화성",admin:"경기도",lat:37.1996,lon:126.8310},
+  "평택":{name:"평택",admin:"경기도",lat:36.9921,lon:127.1129},
+  "의정부":{name:"의정부",admin:"경기도",lat:37.7381,lon:127.0338},
+  "파주":{name:"파주",admin:"경기도",lat:37.7599,lon:126.7800},
+  "김포":{name:"김포",admin:"경기도",lat:37.6152,lon:126.7156},
+  "광명":{name:"광명",admin:"경기도",lat:37.4795,lon:126.8646},
+  "이천":{name:"이천",admin:"경기도",lat:37.2724,lon:127.4350},
+  "하남":{name:"하남",admin:"경기도",lat:37.5393,lon:127.2148},
+  "구리":{name:"구리",admin:"경기도",lat:37.5943,lon:127.1296},
+  "포천":{name:"포천",admin:"경기도",lat:37.8949,lon:127.2003},
+  "양평":{name:"양평",admin:"경기도",lat:37.4917,lon:127.4874},
+  "가평":{name:"가평",admin:"경기도",lat:37.8315,lon:127.5095},
+  "춘천":{name:"춘천",admin:"강원도",lat:37.8813,lon:127.7298},
+  "원주":{name:"원주",admin:"강원도",lat:37.3422,lon:127.9202},
+  "강릉":{name:"강릉",admin:"강원도",lat:37.7519,lon:128.8760},
+  "동해":{name:"동해",admin:"강원도",lat:37.5247,lon:129.1143},
+  "태백":{name:"태백",admin:"강원도",lat:37.1640,lon:128.9856},
+  "속초":{name:"속초",admin:"강원도",lat:38.2070,lon:128.5918},
+  "삼척":{name:"삼척",admin:"강원도",lat:37.4500,lon:129.1655},
+  "홍천":{name:"홍천",admin:"강원도",lat:37.6971,lon:127.8887},
+  "횡성":{name:"횡성",admin:"강원도",lat:37.4917,lon:127.9847},
+  "영월":{name:"영월",admin:"강원도",lat:37.1834,lon:128.4614},
+  "평창":{name:"평창",admin:"강원도",lat:37.3705,lon:128.3900},
+  "정선":{name:"정선",admin:"강원도",lat:37.3805,lon:128.6607},
+  "철원":{name:"철원",admin:"강원도",lat:38.1465,lon:127.3130},
+  "화천":{name:"화천",admin:"강원도",lat:38.1063,lon:127.7080},
+  "양구":{name:"양구",admin:"강원도",lat:38.1094,lon:127.9897},
+  "인제":{name:"인제",admin:"강원도",lat:38.0698,lon:128.1706},
+  "양양":{name:"양양",admin:"강원도",lat:38.0754,lon:128.6190},
+  "청주":{name:"청주",admin:"충청북도",lat:36.6424,lon:127.4890},
+  "충주":{name:"충주",admin:"충청북도",lat:36.9910,lon:127.9259},
+  "제천":{name:"제천",admin:"충청북도",lat:37.1326,lon:128.1907},
+  "천안":{name:"천안",admin:"충청남도",lat:36.8151,lon:127.1139},
+  "공주":{name:"공주",admin:"충청남도",lat:36.4465,lon:127.1189},
+  "아산":{name:"아산",admin:"충청남도",lat:36.7898,lon:127.0018},
+  "서산":{name:"서산",admin:"충청남도",lat:36.7848,lon:126.4503},
+  "당진":{name:"당진",admin:"충청남도",lat:36.8930,lon:126.6455},
+  "보령":{name:"보령",admin:"충청남도",lat:36.3331,lon:126.6128},
+  "전주":{name:"전주",admin:"전라북도",lat:35.8242,lon:127.1480},
+  "군산":{name:"군산",admin:"전라북도",lat:35.9678,lon:126.7369},
+  "익산":{name:"익산",admin:"전라북도",lat:35.9483,lon:126.9575},
+  "정읍":{name:"정읍",admin:"전라북도",lat:35.5698,lon:126.8560},
+  "남원":{name:"남원",admin:"전라북도",lat:35.4164,lon:127.3908},
+  "목포":{name:"목포",admin:"전라남도",lat:34.8118,lon:126.3922},
+  "여수":{name:"여수",admin:"전라남도",lat:34.7604,lon:127.6622},
+  "순천":{name:"순천",admin:"전라남도",lat:34.9506,lon:127.4872},
+  "나주":{name:"나주",admin:"전라남도",lat:35.0160,lon:126.7108},
+  "광양":{name:"광양",admin:"전라남도",lat:34.9407,lon:127.6958},
+  "해남":{name:"해남",admin:"전라남도",lat:34.5734,lon:126.5989},
+  "포항":{name:"포항",admin:"경상북도",lat:36.0190,lon:129.3435},
+  "경주":{name:"경주",admin:"경상북도",lat:35.8562,lon:129.2247},
+  "구미":{name:"구미",admin:"경상북도",lat:36.1195,lon:128.3446},
+  "안동":{name:"안동",admin:"경상북도",lat:36.5684,lon:128.7294},
+  "김천":{name:"김천",admin:"경상북도",lat:36.1398,lon:128.1136},
+  "영주":{name:"영주",admin:"경상북도",lat:36.8056,lon:128.6240},
+  "울진":{name:"울진",admin:"경상북도",lat:36.9930,lon:129.4003},
+  "창원":{name:"창원",admin:"경상남도",lat:35.2281,lon:128.6811},
+  "진주":{name:"진주",admin:"경상남도",lat:35.1800,lon:128.1076},
+  "김해":{name:"김해",admin:"경상남도",lat:35.2285,lon:128.8894},
+  "거제":{name:"거제",admin:"경상남도",lat:34.8806,lon:128.6212},
+  "통영":{name:"통영",admin:"경상남도",lat:34.8544,lon:128.4331},
+  "양산":{name:"양산",admin:"경상남도",lat:35.3350,lon:129.0378},
+  "밀양":{name:"밀양",admin:"경상남도",lat:35.5039,lon:128.7466},
+  "거창":{name:"거창",admin:"경상남도",lat:35.6866,lon:127.9098},
+  "제주":{name:"제주",admin:"제주특별자치도",lat:33.4996,lon:126.5312},
+  "제주시":{name:"제주시",admin:"제주특별자치도",lat:33.4996,lon:126.5312},
+  "서귀포":{name:"서귀포",admin:"제주특별자치도",lat:33.2541,lon:126.5601}
+};
+
+function findKoreaCity(query){
+  const q = query.trim().replace(/(특별시|광역시|특별자치시|특별자치도|도|시|군)$/,"");
+  if(KOREA_CITIES[q]) return KOREA_CITIES[q];
+  if(KOREA_CITIES[query.trim()]) return KOREA_CITIES[query.trim()];
+  const keys = Object.keys(KOREA_CITIES);
+  const partial = keys.find(k=> k.startsWith(q) || q.startsWith(k));
+  return partial ? KOREA_CITIES[partial] : null;
+}
+
+async function fetchWeather(loc){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&hourly=temperature_2m,weathercode,is_day&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&current_weather=true&timezone=auto&forecast_days=10`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("날씨 정보를 가져오지 못했어요.");
+  return await res.json();
+}
+
+async function geocode(query){
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=ko&format=json`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("지역 검색에 실패했어요.");
+  const data = await res.json();
+  return data.results || [];
+}
+
+async function loadAndRender(loc){
+  document.getElementById("view").innerHTML = `<div class="loading-note">날씨 정보를 불러오는 중…</div>`;
+  try{
+    const data = await fetchWeather(loc);
+    hourly = data.hourly;
+    daily = data.daily;
+    currentWeather = data.current_weather;
+    currentLoc = loc;
+    selectedDayIdx = 0;
+    render();
+  }catch(e){
+    document.getElementById("view").innerHTML = `<div class="empty-note">날씨 정보를 불러오지 못했어요.<br>네트워크 연결을 확인하고 다시 시도해주세요.</div>`;
+  }
+}
+
+function render(){
+  const view = document.getElementById("view");
+  view.innerHTML = heroHtml() + hourlyPanelHtml() + dailyPanelHtml();
+  bindDayTabs();
+}
+
+function heroHtml(){
+  const isDay = currentWeather ? currentWeather.is_day===1 : true;
+  const code = currentWeather ? currentWeather.weathercode : 0;
+  const temp = currentWeather ? Math.round(currentWeather.temperature) : "-";
+  const todayMax = daily ? Math.round(daily.temperature_2m_max[0]) : "-";
+  const todayMin = daily ? Math.round(daily.temperature_2m_min[0]) : "-";
+  const pop = daily ? daily.precipitation_probability_max[0] : null;
+  return `
+    <div class="hero">
+      <div class="loc">${escapeHtml(currentLoc.name)}</div>
+      <div class="sub">${escapeHtml(currentLoc.admin||"")}</div>
+      <div class="temp-row">
+        <div class="emoji">${weatherEmoji(code, isDay)}</div>
+        <div>
+          <div class="temp">${temp}°</div>
+          <div class="desc">${weatherDesc(code)}</div>
+        </div>
+      </div>
+      <div class="meta">
+        <span>최고 ${todayMax}° · 최저 ${todayMin}°</span>
+        ${pop!==null ? `<span>강수 ${pop}%</span>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function hourlyPanelHtml(){
+  if(!hourly) return "";
+  const dayTabs = [0,1,2].map(i=>{
+    const label = i===0?"오늘":(i===1?"내일":"모레");
+    return `<div class="day-tab ${i===selectedDayIdx?"active":""}" data-day="${i}">${label}</div>`;
+  }).join("");
+
+  const targetDate = daily.time[selectedDayIdx];
+  const blocks = [];
+  for(let h=0; h<hourly.time.length; h++){
+    if(!hourly.time[h].startsWith(targetDate)) continue;
+    const hourNum = new Date(hourly.time[h]).getHours();
+    if(hourNum % 3 !== 0) continue;
+    blocks.push(`
+      <div class="hour-block">
+        <div class="hr">${fmtHour(hourly.time[h])}</div>
+        <div class="em">${weatherEmoji(hourly.weathercode[h], hourly.is_day[h]===1)}</div>
+        <div class="t">${Math.round(hourly.temperature_2m[h])}°</div>
+      </div>
+    `);
+  }
+  return `
+    <div class="panel">
+      <div class="day-tabs">${dayTabs}</div>
+      <div class="hourly-strip">${blocks.join("") || `<div class="empty-note">시간별 정보가 없어요.</div>`}</div>
+    </div>
+  `;
+}
+
+function dailyPanelHtml(){
+  if(!daily) return "";
+  const allMax = Math.max(...daily.temperature_2m_max);
+  const allMin = Math.min(...daily.temperature_2m_min);
+  const span = Math.max(1, allMax - allMin);
+  const rows = daily.time.map((iso, i)=>{
+    const lo = Math.round(daily.temperature_2m_min[i]);
+    const hi = Math.round(daily.temperature_2m_max[i]);
+    const pop = daily.precipitation_probability_max[i];
+    const leftPct = ((lo - allMin)/span)*100;
+    const widthPct = ((hi - lo)/span)*100;
+    return `
+      <div class="daily-row">
+        <div class="dlabel">
+          <div class="dow">${dowLabel(iso, i)}</div>
+          <div class="date">${dateLabel(iso)}</div>
+        </div>
+        <div class="dem">${weatherEmoji(daily.weathercode[i], true)}</div>
+        <div class="pop">${pop!==null && pop!==undefined ? pop+"%" : ""}</div>
+        <div class="range">
+          <span class="lo">${lo}°</span>
+          <div class="bar-track"><div class="bar-fill" style="left:${leftPct}%;width:${widthPct}%;"></div></div>
+          <span class="hi">${hi}°</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+  return `
+    <div class="panel">
+      <div class="panel-title">10일간의 날씨</div>
+      ${rows}
+    </div>
+  `;
+}
+
+function bindDayTabs(){
+  document.querySelectorAll("[data-day]").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      selectedDayIdx = Number(tab.dataset.day);
+      render();
+    });
+  });
+}
+
+function escapeHtml(s){
+  return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+async function doSearch(){
+  const input = document.getElementById("searchInput");
+  const msg = document.getElementById("searchMsg");
+  const q = input.value.trim();
+  if(!q) return;
+  msg.textContent = "검색 중…";
+
+  const local = findKoreaCity(q);
+  if(local){
+    msg.textContent = "";
+    input.value = "";
+    await loadAndRender({ name:local.name, admin:local.admin, lat:local.lat, lon:local.lon });
+    return;
+  }
+
+  try{
+    const results = await geocode(q);
+    if(results.length===0){
+      msg.textContent = "해당 지역을 찾을 수 없어요. 다른 이름으로 검색해보세요.";
+      return;
+    }
+    const r = results[0];
+    const admin = [r.admin1, r.country].filter(Boolean).join(", ");
+    msg.textContent = "";
+    input.value = "";
+    await loadAndRender({ name:r.name, admin, lat:r.latitude, lon:r.longitude });
+  }catch(e){
+    msg.textContent = "검색에 실패했어요. 네트워크를 확인해주세요.";
+  }
+}
+
+function init(){
+  document.getElementById("searchBtn").addEventListener("click", doSearch);
+  document.getElementById("searchInput").addEventListener("keydown", e=>{ if(e.key==="Enter") doSearch(); });
+  loadAndRender(currentLoc);
+}
+
+init();
+</script>
+</body>
+</html>
