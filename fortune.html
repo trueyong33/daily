@@ -143,4 +143,858 @@
   .field-error{
     font-size:.78rem;color:var(--fire);margin:0;
     background:rgba(198,75,60,.12);
-    border-radius:8px;padding:8px
+    border-radius:8px;padding:8px 10px;
+  }
+  .lunar-note{font-size:.72rem;color:var(--muted);margin:2px 0 0;}
+  .btn-primary{
+    margin-top:8px;
+    background:linear-gradient(135deg, var(--gold) 0%, #b98d4a 100%);
+    color:#1c1508;
+    border:none;
+    border-radius:10px;
+    padding:14px;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:1rem;
+    letter-spacing:.02em;
+    cursor:pointer;
+  }
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:focus-visible{outline:2px solid var(--cream);outline-offset:2px;}
+  .btn-ghost{
+    background:transparent;
+    border:1px solid rgba(154,151,173,.4);
+    color:var(--muted);
+    border-radius:10px;
+    padding:10px 16px;
+    font-family:var(--font-body);
+    font-size:.85rem;
+    cursor:pointer;
+    width:100%;
+    margin-top:24px;
+  }
+  .btn-ghost:hover{color:var(--cream);border-color:var(--cream);}
+  .hint{font-size:.78rem;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6;}
+  .pin-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:-4px;}
+  .pin-check{
+    display:flex;align-items:center;gap:8px;
+    font-size:.85rem;color:var(--cream);
+    cursor:pointer;
+  }
+  .pin-check input{width:16px;height:16px;accent-color:var(--gold);flex:0 0 auto;}
+  .unpin-btn{
+    background:transparent;border:1px solid rgba(198,75,60,.5);
+    color:var(--fire);
+    border-radius:8px;padding:6px 10px;
+    font-size:.72rem;cursor:pointer;
+    flex:0 0 auto;
+  }
+  .unpin-btn:hover{background:rgba(198,75,60,.12);}
+
+  /* ---- zodiac badge ---- */
+  .zodiac-badge{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    margin-bottom:18px;
+  }
+  .zodiac-emoji{
+    width:84px;height:84px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--panel-2), var(--panel));
+    border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-size:42px;
+    box-shadow:0 8px 20px rgba(0,0,0,.4), inset 0 0 14px rgba(212,175,106,.15);
+  }
+  .zodiac-label{
+    font-family:var(--font-display);
+    font-size:1.1rem;
+    color:var(--gold-soft);
+  }
+
+  /* ---- dial ---- */
+  .dial-wrap{display:flex;justify-content:center;margin-bottom:22px;}
+  .dial-wrap svg{width:220px;height:220px;}
+  .dial-sector{transition:opacity .3s;}
+  .dial-emoji{font-size:15px;text-anchor:middle;dominant-baseline:middle;}
+  .dial-center-days{
+    font-family:var(--font-mono);
+    font-size:20px;
+    fill:var(--gold-soft);
+    text-anchor:middle;
+  }
+  .dial-center-label{
+    font-family:var(--font-body);
+    font-size:10px;
+    fill:var(--muted);
+    text-anchor:middle;
+    letter-spacing:.05em;
+  }
+  .dial-element-tag{
+    display:flex;justify-content:center;align-items:center;gap:8px;
+    font-size:.85rem;color:var(--muted);margin-bottom:24px;
+  }
+  .dial-element-swatch{width:10px;height:10px;border-radius:50%;display:inline-block;}
+
+  /* ---- fortune card ---- */
+  .fortune-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    padding:26px 22px 22px;
+    position:relative;
+    box-shadow:0 18px 36px rgba(0,0,0,.4);
+    border-top:3px dashed rgba(43,38,32,.25);
+    margin-bottom:22px;
+  }
+  .seal{
+    position:absolute;
+    top:-16px;right:20px;
+    width:44px;height:44px;
+    border-radius:50%;
+    background:var(--fire);
+    color:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);
+    font-size:1.3rem;
+    transform:rotate(-8deg);
+    box-shadow:0 4px 10px rgba(0,0,0,.35);
+    border:2px solid rgba(244,236,216,.5);
+  }
+  .fortune-card .greeting{
+    font-family:var(--font-display);
+    font-size:1.15rem;
+    margin:0 0 4px;
+  }
+  .fortune-card .greeting .name{color:var(--fire);}
+  .fortune-card .date-line{
+    font-family:var(--font-mono);
+    font-size:.75rem;
+    color:rgba(43,38,32,.55);
+    margin:0 0 16px;
+  }
+  .total-stars{font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:8px;}
+  .total-text{font-size:.95rem;line-height:1.65;margin:0 0 20px;}
+  .sub-list{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+  .sub-row{display:flex;align-items:flex-start;gap:10px;}
+  .sub-row .sub-label{
+    flex:0 0 64px;
+    font-size:.78rem;
+    font-weight:700;
+    color:rgba(43,38,32,.7);
+    padding-top:1px;
+  }
+  .sub-row .sub-body{flex:1;}
+  .sub-row .sub-stars{font-size:.72rem;letter-spacing:1px;color:var(--earth);display:block;margin-bottom:2px;}
+  .sub-row .sub-text{font-size:.85rem;line-height:1.5;margin:0;}
+  .lucky-row{
+    display:flex;gap:8px;flex-wrap:wrap;
+    border-top:1px solid rgba(43,38,32,.15);
+    padding-top:16px;
+  }
+  .lucky-chip{
+    background:rgba(43,38,32,.06);
+    border-radius:999px;
+    padding:6px 12px;
+    font-size:.75rem;
+    display:flex;align-items:center;gap:6px;
+  }
+  .lucky-dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  /* ---- biorhythm ---- */
+  .bio-section{
+    background:var(--panel);
+    border:1px solid rgba(212,175,106,.2);
+    border-radius:14px;
+    padding:20px 18px 16px;
+    margin-bottom:18px;
+  }
+  .bio-title{
+    font-family:var(--font-display);
+    font-size:1.05rem;
+    color:var(--gold-soft);
+    margin:0 0 2px;
+  }
+  .bio-sub{font-size:.72rem;color:var(--muted);margin:0 0 18px;}
+  .bio-gauges{display:flex;flex-direction:column;gap:18px;}
+  .bio-gauge-row{}
+  .bio-gauge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .bio-gauge-label{font-size:.85rem;font-weight:700;color:var(--cream);}
+  .bio-gauge-value{font-family:var(--font-mono);font-size:.95rem;}
+  .bio-gauge-track{position:relative;height:10px;background:rgba(237,230,214,.08);border-radius:6px;overflow:hidden;}
+  .bio-gauge-mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(237,230,214,.35);}
+  .bio-gauge-fill{position:absolute;top:0;bottom:0;border-radius:6px;transition:width .8s ease, left .8s ease;}
+  .bio-gauge-status{font-size:.76rem;color:var(--muted);margin:6px 0 0;}
+  .bio-note{font-size:.7rem;color:var(--muted);text-align:center;margin-top:16px;line-height:1.6;}
+
+  .disclaimer{
+    text-align:center;font-size:.7rem;color:var(--muted);line-height:1.7;margin-top:8px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <h1>오늘의 운세</h1>
+    <p class="sub">Daily Fortune &amp; Biorhythm</p>
+  </header>
+
+  <section id="screen-input" class="screen active">
+    <form id="fortune-form" class="fortune-form">
+      <label>이름 <span class="optional">(선택, 인사말에 사용돼요)</span>
+        <input type="text" id="name" maxlength="10" placeholder="예: 지은">
+      </label>
+      <div class="cal-type-group">
+        <span class="field-label">생년월일</span>
+        <div class="cal-toggle" role="group" aria-label="달력 종류 선택">
+          <button type="button" class="cal-toggle-btn active" id="btn-cal-solar" aria-pressed="true">양력</button>
+          <button type="button" class="cal-toggle-btn" id="btn-cal-lunar" aria-pressed="false">음력</button>
+        </div>
+      </div>
+
+      <div id="solar-block" class="cal-block">
+        <input type="date" id="birthdate" min="1900-01-01" max="2100-12-31">
+      </div>
+
+      <div id="lunar-block" class="cal-block" hidden>
+        <div class="lunar-selects">
+          <select id="lunar-year" aria-label="음력 연도"></select>
+          <select id="lunar-month" aria-label="음력 월"></select>
+          <select id="lunar-day" aria-label="음력 일"></select>
+        </div>
+        <label class="leap-check">
+          <input type="checkbox" id="lunar-leap">
+          윤달이에요
+        </label>
+        <p class="leap-info" id="leap-info"></p>
+      </div>
+
+      <p class="field-error" id="birth-error" hidden></p>
+
+      <label>태어난 시간 <span class="optional">(선택)</span>
+        <input type="time" id="birthtime">
+      </label>
+
+      <div class="pin-row">
+        <label class="pin-check">
+          <input type="checkbox" id="pin-checkbox">
+          내 정보로 고정하기 <span class="optional">(다음에 자동으로 불러와요)</span>
+        </label>
+        <button type="button" id="unpin-btn" class="unpin-btn" hidden>고정 해제</button>
+      </div>
+
+      <button type="submit" class="btn-primary">오늘의 운세 보기</button>
+    </form>
+    <p class="hint" id="form-hint">체크박스를 해제하면 다른 사람의 운세도 확인할 수 있어요. 고정하지 않은 정보는 저장되지 않아요.</p>
+  </section>
+
+  <section id="screen-result" class="screen">
+    <div class="zodiac-badge">
+      <div class="zodiac-emoji" id="zodiac-emoji"></div>
+      <div class="zodiac-label" id="zodiac-label"></div>
+    </div>
+
+    <div class="dial-wrap"><svg id="dial" viewBox="0 0 220 220"></svg></div>
+    <div class="dial-element-tag">
+      <span class="dial-element-swatch" id="element-swatch"></span>
+      <span id="element-text"></span>
+    </div>
+
+    <div class="fortune-card">
+      <div class="seal">運</div>
+      <p class="greeting"><span class="name" id="greeting-name"></span>님, 오늘의 운세예요</p>
+      <p class="date-line" id="date-line"></p>
+      <p class="lunar-note" id="lunar-note" hidden></p>
+      <div class="total-stars" id="total-stars"></div>
+      <p class="total-text" id="total-text"></p>
+
+      <div class="sub-list" id="sub-list"></div>
+
+      <div class="lucky-row" id="lucky-row"></div>
+    </div>
+
+    <div class="bio-section">
+      <h2 class="bio-title">바이오리듬</h2>
+      <p class="bio-sub">오늘 신체·감성·지성 리듬이 어떤 흐름인지 보여드려요</p>
+      <div class="bio-gauges" id="bio-gauges"></div>
+      <p class="bio-note">태어난 지 <span id="days-alive-inline"></span>일째 되는 날, 오늘 기준 리듬이에요</p>
+    </div>
+
+    <p class="disclaimer">본 콘텐츠는 재미로 즐기는 엔터테인먼트이며, 실제 명리학적·과학적 근거와는 무관해요.</p>
+    <button class="btn-ghost" id="back-btn">다른 생년월일로 다시 보기</button>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- lunar <-> solar conversion (1900-2100) ----------
+     Table encodes, per lunar year, which of its 12 (or 13) months
+     have 30 vs 29 days and which month (if any) is the leap month.
+     This is the standard East-Asian lunisolar calendar table used
+     by widely-adopted open-source calendar libraries. */
+  const lunarInfo = [
+    0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+    0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+    0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+    0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+    0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+    0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+    0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+    0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0,
+    0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+    0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+    0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+    0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+    0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+    0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+    0x092e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+    0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+    0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+    0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a4d0,0x0d150,0x0f252,
+    0x0d520
+  ]; // index 0 => year 1900 ... index 200 => year 2100
+
+  function lunarLeapMonth(y){ return lunarInfo[y-1900] & 0xf; }
+  function lunarLeapDays(y){ return lunarLeapMonth(y) ? ((lunarInfo[y-1900] & 0x10000) ? 30 : 29) : 0; }
+  function lunarMonthDays(y,m){ return (lunarInfo[y-1900] & (0x10000 >> m)) ? 30 : 29; }
+  function lunarYearDays(y){
+    let sum = 348;
+    const info = lunarInfo[y-1900];
+    for(let bit=0x8000; bit>0x8; bit>>=1){ sum += (info & bit) ? 1 : 0; }
+    return sum + lunarLeapDays(y);
+  }
+  /**
+   * Convert a lunar date to its solar (Gregorian) equivalent.
+   * Returns {y,m,d} or null if the date is invalid / out of range.
+   */
+  function lunarToSolar(y, m, d, isLeap){
+    y = Number(y); m = Number(m); d = Number(d); isLeap = Boolean(isLeap);
+    if(!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return null;
+    if(y < 1900 || y > 2100 || m < 1 || m > 12) return null;
+    const leapMonthOfYear = lunarLeapMonth(y);
+    if(isLeap && leapMonthOfYear !== m) return null;
+    const maxDay = isLeap ? lunarLeapDays(y) : lunarMonthDays(y,m);
+    if(d < 1 || d > maxDay) return null;
+
+    let offset = 0;
+    for(let i=1900;i<y;i++){ offset += lunarYearDays(i); }
+    let isAdd = false;
+    for(let i=1;i<m;i++){
+      if(!isAdd && leapMonthOfYear <= i && leapMonthOfYear > 0){
+        offset += lunarLeapDays(y);
+        isAdd = true;
+      }
+      offset += lunarMonthDays(y,i);
+    }
+    if(isLeap){ offset += lunarMonthDays(y,m); }
+
+    const base = Date.UTC(1900,1,30,0,0,0); // lunar 1900-01-01 == solar 1900-01-30
+    const solarDate = new Date((offset + d - 31) * 86400000 + base);
+    return { y: solarDate.getUTCFullYear(), m: solarDate.getUTCMonth()+1, d: solarDate.getUTCDate() };
+  }
+
+  /**
+   * Given a solar (Gregorian) birth date, find the lunar year it falls in.
+   * Needed because 띠 (the 12-animal zodiac sign) follows the lunar year,
+   * so a birthday in early Jan/Feb before that year's Lunar New Year
+   * actually belongs to the previous lunar year.
+   */
+  function getLunarYearForSolarDate(y, m, d){
+    if(y <= 1900) return y;
+    const newYear = lunarToSolar(y, 1, 1, false);
+    if(!newYear) return y;
+    const dayNum = utcDayNumber(y, m-1, d);
+    const newYearDayNum = utcDayNumber(newYear.y, newYear.m-1, newYear.d);
+    return dayNum < newYearDayNum ? y-1 : y;
+  }
+  function getZodiacIndex(lunarYear){
+    return ((lunarYear - 4) % 12 + 12) % 12;
+  }
+
+  /* ---------- deterministic RNG ---------- */
+  function hashString(str){
+    let h = 2166136261;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(seed){
+    let a = seed;
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function pick(rng, arr){ return arr[Math.floor(rng()*arr.length)]; }
+  function pickScore(rng){ return Math.floor(rng()*5)+1; }
+  function stars(score){
+    let s = "";
+    for(let i=0;i<5;i++) s += (i<score ? "●" : "○");
+    return s;
+  }
+
+  /* ---------- content pools ---------- */
+  const totalPool = {
+    1: ["오늘은 속도를 늦추고 무리한 결정은 미뤄두는 게 좋아요.","작은 실수가 생기기 쉬운 날이니 한 번 더 확인해보세요.","컨디션 난조가 느껴질 수 있어요. 오늘은 쉬어가는 것도 방법이에요."],
+    2: ["평소보다 조금 신중하게 움직이면 무난하게 지나가는 하루예요.","큰 기복은 없지만 사소한 데서 삐끗할 수 있으니 여유를 가지세요.","서두르지 않으면 무탈하게 흘러가는 날이에요."],
+    3: ["딱히 특별할 것 없는, 평온하게 흘러가는 하루예요.","무난한 흐름 속에서 작은 즐거움을 찾을 수 있어요.","루틴대로 움직이면 안정적으로 지나가는 날이에요."],
+    4: ["전반적으로 흐름이 좋아 하려던 일들이 순조롭게 풀려요.","주변 사람들의 도움을 받기 좋은 날이니 부탁할 일이 있다면 오늘이에요.","기분 좋은 소식이나 작은 행운이 찾아올 수 있어요."],
+    5: ["모든 일이 물 흐르듯 풀리는, 오늘 하루를 마음껏 즐겨도 좋아요.","자신감이 차오르는 날, 미뤄뒀던 도전을 시작하기에 좋은 타이밍이에요.","뜻밖의 좋은 기회가 찾아올 수 있으니 주변을 잘 살펴보세요."]
+  };
+
+  const subPools = {
+    love: {
+      1:["감정 표현보다는 한 발 물러서서 지켜보는 게 좋아요.","오해가 생기기 쉬우니 말을 아끼는 편이 나아요."],
+      2:["큰 이벤트보다는 잔잔한 대화가 어울리는 날이에요.","혼자만의 시간을 갖는 것도 나쁘지 않아요."],
+      3:["평소와 다름없는 무난한 하루예요.","기존의 관계가 안정적으로 유지돼요."],
+      4:["다정한 말 한마디가 관계를 한층 따뜻하게 만들어줘요.","오랜만에 연락하고 싶었던 사람에게 먼저 다가가보세요."],
+      5:["설렘 가득한 만남이나 반가운 소식이 찾아올 수 있어요.","마음을 표현하기에 더없이 좋은 타이밍이에요."]
+    },
+    money: {
+      1:["충동적인 지출은 잠시 미뤄두는 게 좋아요.","계약이나 큰 거래는 다음으로 미루는 편이 안전해요."],
+      2:["예상치 못한 지출이 생길 수 있으니 지갑 단속을 해두세요.","무리한 투자는 신중하게 접근하세요."],
+      3:["큰 변화 없이 평소 흐름대로 지나가는 재정 상태예요.","가계부를 점검해보기 좋은 날이에요."],
+      4:["계획했던 지출이나 거래가 순조롭게 마무리돼요.","작은 부수입이 생길 가능성이 있어요."],
+      5:["금전운이 활짝 열려 있어요, 좋은 제안이 들어올 수 있어요.","오랫동안 기다리던 좋은 소식이 들려올 수 있어요."]
+    },
+    health: {
+      1:["몸이 보내는 신호를 무시하지 말고 충분히 쉬어주세요.","무리한 일정은 조금 줄이는 게 좋겠어요."],
+      2:["가벼운 피로감이 느껴질 수 있으니 수분 섭취를 챙기세요.","평소보다 일찍 잠자리에 드는 걸 추천해요."],
+      3:["특별한 변화 없이 평온한 컨디션을 유지해요.","가벼운 스트레칭으로 몸을 풀어주면 좋아요."],
+      4:["활력이 넘치는 하루, 가벼운 운동을 시작하기 좋아요.","컨디션이 좋아 무엇이든 해낼 수 있을 것 같은 기분이에요."],
+      5:["몸도 마음도 가뿐한, 에너지가 넘치는 하루예요.","오랜만에 상쾌한 아침을 맞이할 수 있어요."]
+    },
+    social: {
+      1:["불필요한 논쟁은 피하고 한 발 물러서는 지혜가 필요해요.","오늘은 혼자만의 시간을 갖는 것도 좋은 선택이에요."],
+      2:["작은 오해가 생기기 쉬우니 말투에 신경 써보세요.","무리해서 약속을 잡기보다는 여유를 두세요."],
+      3:["평소와 비슷한 무난한 인간관계 흐름이에요.","익숙한 사람들과 편안한 시간을 보내기 좋아요."],
+      4:["주변 사람들과의 호흡이 잘 맞는 하루예요.","새로운 인연이 좋은 자극이 되어줄 수 있어요."],
+      5:["인기 운이 상승해 주변에 사람이 모이는 하루예요.","뜻밖의 반가운 만남이 기다리고 있을 수 있어요."]
+    }
+  };
+  const subLabels = {love:"애정운", money:"재물운", health:"건강운", social:"대인관계"};
+
+  const luckyColors = [
+    {name:"다홍색", hex:"#c64b3c"},{name:"남색", hex:"#3d4f7d"},{name:"연보라색", hex:"#a893c9"},
+    {name:"금색", hex:"#d4af6a"},{name:"민트색", hex:"#6fa287"},{name:"코발트블루", hex:"#4a7fb5"},
+    {name:"로즈핑크", hex:"#c97d8a"},{name:"올리브색", hex:"#8a8f4d"},{name:"은색", hex:"#b8c4c9"},
+    {name:"주황색", hex:"#d98a3d"}
+  ];
+  const luckyDirections = ["동","서","남","북","동남","동북","서남","서북"];
+
+  const elements = [
+    {name:"목(木)", desc:"성장과 시작의 기운이 감도는 날", color:"var(--wood)"},
+    {name:"화(火)", desc:"열정과 표현이 두드러지는 날", color:"var(--fire)"},
+    {name:"토(土)", desc:"안정과 균형이 필요한 날", color:"var(--earth)"},
+    {name:"금(金)", desc:"결단과 정리에 어울리는 날", color:"#b8c4c9"},
+    {name:"수(水)", desc:"직관과 여유가 빛나는 날", color:"var(--water)"}
+  ];
+
+  const animals = ["🐀","🐂","🐯","🐰","🐉","🐍","🐎","🐑","🐒","🐔","🐕","🐖"];
+  const animalNames = ["쥐","소","호랑이","토끼","용","뱀","말","양","원숭이","닭","개","돼지"];
+
+  /* ---------- date helpers ---------- */
+  function utcDayNumber(y,m,d){ return Math.floor(Date.UTC(y,m,d) / 86400000); }
+
+  /* ---------- dial ---------- */
+  function polar(cx,cy,r,angleDeg){
+    const a = (angleDeg-90) * Math.PI/180;
+    return {x: cx + r*Math.cos(a), y: cy + r*Math.sin(a)};
+  }
+  function arcPath(cx,cy,rOuter,rInner,startAngle,endAngle){
+    const p1 = polar(cx,cy,rOuter,endAngle);
+    const p2 = polar(cx,cy,rOuter,startAngle);
+    const p3 = polar(cx,cy,rInner,startAngle);
+    const p4 = polar(cx,cy,rInner,endAngle);
+    const large = (endAngle-startAngle) <= 180 ? 0 : 1;
+    return [
+      "M", p1.x, p1.y,
+      "A", rOuter, rOuter, 0, large, 0, p2.x, p2.y,
+      "L", p3.x, p3.y,
+      "A", rInner, rInner, 0, large, 1, p4.x, p4.y,
+      "Z"
+    ].join(" ");
+  }
+  function renderDial(svg, todayIdx, daysAlive, elementColor){
+    const cx=110, cy=110, rOuter=100, rInner=72;
+    const activeIdx = ((todayIdx % 12) + 12) % 12;
+    let html = "";
+    for(let i=0;i<12;i++){
+      const start = i*30, end = start+30;
+      const isActive = i===activeIdx;
+      html += '<path class="dial-sector" d="'+arcPath(cx,cy,rOuter,rInner,start,end)+'" fill="'+(isActive ? elementColor : "rgba(237,230,214,0.06)")+'" stroke="rgba(18,20,31,0.9)" stroke-width="1.5"></path>';
+      const mid = start+15;
+      const labelPos = polar(cx,cy,(rOuter+rInner)/2, mid);
+      html += '<text class="dial-emoji" x="'+labelPos.x+'" y="'+(labelPos.y+5)+'">'+animals[i]+'</text>';
+    }
+    html += '<circle cx="'+cx+'" cy="'+cy+'" r="'+(rInner-4)+'" fill="var(--panel-2)"></circle>';
+    html += '<text class="dial-center-days" x="'+cx+'" y="'+(cy-4)+'">'+daysAlive.toLocaleString()+'</text>';
+    html += '<text class="dial-center-label" x="'+cx+'" y="'+(cy+16)+'">일째</text>';
+    svg.innerHTML = html;
+    svg.style.transform = "rotate(-14deg)";
+    svg.style.opacity = "0";
+    svg.style.transition = "transform .7s cubic-bezier(.2,.8,.2,1), opacity .7s ease";
+    requestAnimationFrame(()=>{
+      svg.style.transform = "rotate(0deg)";
+      svg.style.opacity = "1";
+    });
+  }
+
+  /* ---------- biorhythm: today only ---------- */
+  const bioStatusText = {
+    physical: {
+      peak: "컨디션이 최고조예요",
+      good: "몸 상태가 좋은 편이에요",
+      turn: "리듬이 전환되는 시점이에요",
+      low: "무리하지 않는 게 좋아요",
+      bottom: "휴식이 필요한 시기예요"
+    },
+    emotional: {
+      peak: "감정이 풍부하고 긍정적이에요",
+      good: "기분이 안정적인 편이에요",
+      turn: "감정 기복이 있을 수 있어요",
+      low: "평소보다 예민해지기 쉬워요",
+      bottom: "마음의 여유를 가져보세요"
+    },
+    intellectual: {
+      peak: "집중력과 판단력이 뛰어나요",
+      good: "사고가 명료한 편이에요",
+      turn: "집중력이 오르내릴 수 있어요",
+      low: "중요한 결정은 신중하게 하세요",
+      bottom: "생각을 정리할 시간이 필요해요"
+    }
+  };
+  function bioLevel(val){
+    if(val >= 50) return "peak";
+    if(val > 5) return "good";
+    if(val >= -5) return "turn";
+    if(val > -50) return "low";
+    return "bottom";
+  }
+  function renderBioGauges(container, birthDayNum, todayDayNum){
+    const cycles = [
+      {key:"physical", label:"신체", period:23, color:"var(--wood)"},
+      {key:"emotional", label:"감성", period:28, color:"var(--fire)"},
+      {key:"intellectual", label:"지성", period:33, color:"var(--water)"}
+    ];
+    const t = todayDayNum - birthDayNum;
+    const results = cycles.map(function(c){
+      const val = Math.round(Math.sin(2*Math.PI*t/c.period) * 100);
+      const prevVal = Math.sin(2*Math.PI*(t-1)/c.period) * 100;
+      const trend = val - prevVal > 0.05 ? "상승 중" : (val - prevVal < -0.05 ? "하강 중" : "");
+      const level = bioLevel(val);
+      const statusBase = bioStatusText[c.key][level];
+      const status = trend ? (statusBase + " · " + trend) : statusBase;
+      return Object.assign({}, c, {val:val, status:status});
+    });
+
+    container.innerHTML = results.map(function(r){
+      const half = Math.min(Math.abs(r.val), 100) / 100 * 50;
+      const left = r.val >= 0 ? 50 : 50 - half;
+      const width = half;
+      return (
+        '<div class="bio-gauge-row">' +
+          '<div class="bio-gauge-head">' +
+            '<span class="bio-gauge-label">'+r.label+'</span>' +
+            '<span class="bio-gauge-value" style="color:'+r.color+'">'+(r.val>0?"+":"")+r.val+'%</span>' +
+          '</div>' +
+          '<div class="bio-gauge-track">' +
+            '<div class="bio-gauge-mid"></div>' +
+            '<div class="bio-gauge-fill" data-left="'+left+'" data-width="'+width+'" style="left:50%;width:0%;background:'+r.color+'"></div>' +
+          '</div>' +
+          '<p class="bio-gauge-status">'+r.status+'</p>' +
+        '</div>'
+      );
+    }).join("");
+
+    requestAnimationFrame(function(){
+      container.querySelectorAll(".bio-gauge-fill").forEach(function(fillEl){
+        fillEl.style.left = fillEl.getAttribute("data-left") + "%";
+        fillEl.style.width = fillEl.getAttribute("data-width") + "%";
+      });
+    });
+
+    return results.map(function(r){ return r.val; });
+  }
+
+  /* ---------- calendar type toggle & lunar select wiring ---------- */
+  let calType = "solar";
+  const btnCalSolar = document.getElementById("btn-cal-solar");
+  const btnCalLunar = document.getElementById("btn-cal-lunar");
+  const solarBlock = document.getElementById("solar-block");
+  const lunarBlock = document.getElementById("lunar-block");
+  const birthError = document.getElementById("birth-error");
+  const lunarYearSel = document.getElementById("lunar-year");
+  const lunarMonthSel = document.getElementById("lunar-month");
+  const lunarDaySel = document.getElementById("lunar-day");
+  const lunarLeapChk = document.getElementById("lunar-leap");
+  const leapInfoEl = document.getElementById("leap-info");
+
+  function setCalType(type){
+    calType = type;
+    const isSolar = type === "solar";
+    btnCalSolar.classList.toggle("active", isSolar);
+    btnCalLunar.classList.toggle("active", !isSolar);
+    btnCalSolar.setAttribute("aria-pressed", String(isSolar));
+    btnCalLunar.setAttribute("aria-pressed", String(!isSolar));
+    solarBlock.hidden = !isSolar;
+    lunarBlock.hidden = isSolar;
+    birthError.hidden = true;
+  }
+  btnCalSolar.addEventListener("click", function(){ setCalType("solar"); });
+  btnCalLunar.addEventListener("click", function(){ setCalType("lunar"); });
+
+  (function initLunarSelects(){
+    const thisYear = new Date().getFullYear();
+    let yearOpts = "";
+    for(let y=thisYear; y>=1900; y--){ yearOpts += '<option value="'+y+'">'+y+'년</option>'; }
+    lunarYearSel.innerHTML = yearOpts;
+    let monthOpts = "";
+    for(let m=1;m<=12;m++){ monthOpts += '<option value="'+m+'">'+m+'월</option>'; }
+    lunarMonthSel.innerHTML = monthOpts;
+    lunarYearSel.value = thisYear - 25;
+    updateLunarDayOptions();
+  })();
+
+  function updateLunarDayOptions(){
+    const y = Number(lunarYearSel.value);
+    const m = Number(lunarMonthSel.value);
+    const leapMonthOfYear = lunarLeapMonth(y);
+
+    if(leapMonthOfYear > 0){
+      leapInfoEl.textContent = y+"년 윤달은 "+leapMonthOfYear+"월이에요.";
+    } else {
+      leapInfoEl.textContent = y+"년에는 윤달이 없어요.";
+    }
+    const leapApplies = leapMonthOfYear === m;
+    lunarLeapChk.disabled = !leapApplies;
+    if(!leapApplies) lunarLeapChk.checked = false;
+
+    const maxDay = lunarLeapChk.checked ? lunarLeapDays(y) : lunarMonthDays(y,m);
+    const prevDay = Number(lunarDaySel.value) || 1;
+    let dayOpts = "";
+    for(let d=1; d<=maxDay; d++){ dayOpts += '<option value="'+d+'">'+d+'일</option>'; }
+    lunarDaySel.innerHTML = dayOpts;
+    lunarDaySel.value = Math.min(prevDay, maxDay);
+  }
+  lunarYearSel.addEventListener("change", updateLunarDayOptions);
+  lunarMonthSel.addEventListener("change", updateLunarDayOptions);
+  lunarLeapChk.addEventListener("change", updateLunarDayOptions);
+
+  /* ---------- main render ---------- */
+  const form = document.getElementById("fortune-form");
+  const screenInput = document.getElementById("screen-input");
+  const screenResult = document.getElementById("screen-result");
+
+  /* ---- pin ("내 정보로 고정") : persists via localStorage, this browser only ---- */
+  const pinCheckbox = document.getElementById("pin-checkbox");
+  const unpinBtn = document.getElementById("unpin-btn");
+  const PIN_KEY = "my-birth-info";
+
+  async function loadPinnedData(){
+    try{
+      const raw = localStorage.getItem(PIN_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(err){ /* nothing pinned yet */ }
+    return null;
+  }
+  async function savePinnedData(data){
+    try{ localStorage.setItem(PIN_KEY, JSON.stringify(data)); }
+    catch(err){ console.error("고정 정보를 저장하지 못했어요:", err); }
+  }
+  async function deletePinnedData(){
+    try{ localStorage.removeItem(PIN_KEY); }
+    catch(err){ /* already empty */ }
+  }
+  function collectFormDataForPin(){
+    const data = {
+      name: document.getElementById("name").value.trim(),
+      calType: calType,
+      birthtime: document.getElementById("birthtime").value
+    };
+    if(calType === "solar"){
+      data.solarDate = document.getElementById("birthdate").value;
+    } else {
+      data.lunarYear = lunarYearSel.value;
+      data.lunarMonth = lunarMonthSel.value;
+      data.lunarDay = lunarDaySel.value;
+      data.lunarLeap = lunarLeapChk.checked;
+    }
+    return data;
+  }
+  function applyPinnedDataToForm(data){
+    document.getElementById("name").value = data.name || "";
+    document.getElementById("birthtime").value = data.birthtime || "";
+    if(data.calType === "lunar"){
+      setCalType("lunar");
+      lunarYearSel.value = data.lunarYear;
+      lunarMonthSel.value = data.lunarMonth;
+      updateLunarDayOptions();
+      lunarLeapChk.checked = !!data.lunarLeap;
+      updateLunarDayOptions();
+      lunarDaySel.value = data.lunarDay;
+    } else {
+      setCalType("solar");
+      document.getElementById("birthdate").value = data.solarDate || "";
+    }
+  }
+  unpinBtn.addEventListener("click", async function(){
+    await deletePinnedData();
+    pinCheckbox.checked = false;
+    unpinBtn.hidden = true;
+    document.getElementById("name").value = "";
+    document.getElementById("birthdate").value = "";
+    document.getElementById("birthtime").value = "";
+  });
+  (async function initFromPinnedData(){
+    const data = await loadPinnedData();
+    if(data){
+      applyPinnedDataToForm(data);
+      pinCheckbox.checked = true;
+      unpinBtn.hidden = false;
+      if(form.requestSubmit) form.requestSubmit();
+      else form.dispatchEvent(new Event("submit", {cancelable:true}));
+    }
+  })();
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim() || "그대";
+    const birthtimeStr = document.getElementById("birthtime").value;
+
+    let by, bm, bd, lunarOriginText = null;
+
+    if(calType === "solar"){
+      const solarVal = document.getElementById("birthdate").value;
+      if(!solarVal){
+        birthError.textContent = "생년월일을 입력해주세요.";
+        birthError.hidden = false;
+        return;
+      }
+      [by,bm,bd] = solarVal.split("-").map(Number);
+      birthError.hidden = true;
+    } else {
+      const ly = Number(lunarYearSel.value);
+      const lm = Number(lunarMonthSel.value);
+      const ld = Number(lunarDaySel.value);
+      const isLeap = lunarLeapChk.checked;
+      const converted = lunarToSolar(ly, lm, ld, isLeap);
+      if(!converted){
+        birthError.textContent = "입력한 음력 날짜를 확인해주세요. 윤달 여부나 일자가 맞지 않을 수 있어요.";
+        birthError.hidden = false;
+        return;
+      }
+      by = converted.y; bm = converted.m; bd = converted.d;
+      birthError.hidden = true;
+      lunarOriginText = "음력 "+ly+"."+String(lm).padStart(2,"0")+"."+String(ld).padStart(2,"0")+(isLeap?"(윤달)":"") +
+        " → 양력 "+by+"."+String(bm).padStart(2,"0")+"."+String(bd).padStart(2,"0")+"로 계산했어요";
+    }
+
+    const birthdateStr = by+"-"+String(bm).padStart(2,"0")+"-"+String(bd).padStart(2,"0");
+    const birthDayNum = utcDayNumber(by, bm-1, bd);
+
+    if(pinCheckbox.checked){
+      savePinnedData(collectFormDataForPin());
+      unpinBtn.hidden = false;
+    }
+
+    const now = new Date();
+    const todayDayNum = utcDayNumber(now.getFullYear(), now.getMonth(), now.getDate());
+    const daysAlive = todayDayNum - birthDayNum;
+
+    const todayStr = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate();
+    const seedStr = birthdateStr + "|" + birthtimeStr + "|" + name + "|" + todayStr;
+    const rng = mulberry32(hashString(seedStr));
+
+    // total fortune
+    const totalScore = pickScore(rng);
+    const totalText = pick(rng, totalPool[totalScore]);
+
+    // sub fortunes
+    const subKeys = ["love","money","health","social"];
+    const subResults = subKeys.map(function(k){
+      const score = pickScore(rng);
+      return {key:k, score:score, text: pick(rng, subPools[k][score])};
+    });
+
+    // lucky picks
+    const luckyColor = pick(rng, luckyColors);
+    const luckyNumber = Math.floor(rng()*9)+1;
+    const luckyDirection = pick(rng, luckyDirections);
+
+    // day-based (shared) flavor
+    const element = elements[((todayDayNum % 5)+5)%5];
+    const animalIdx = ((todayDayNum % 12)+12)%12;
+
+    // birth-year zodiac sign (띠) — based on lunar year, not solar year
+    const lunarYearForZodiac = getLunarYearForSolarDate(by, bm, bd);
+    const zodiacIdx = getZodiacIndex(lunarYearForZodiac);
+
+    // ---- fill DOM ----
+    document.getElementById("zodiac-emoji").textContent = animals[zodiacIdx];
+    document.getElementById("zodiac-label").textContent = animalNames[zodiacIdx] + "띠";
+    document.getElementById("greeting-name").textContent = name;
+    document.getElementById("date-line").textContent =
+      now.getFullYear()+"."+String(now.getMonth()+1).padStart(2,"0")+"."+String(now.getDate()).padStart(2,"0")+" 기준";
+    const lunarNoteEl = document.getElementById("lunar-note");
+    if(lunarOriginText){
+      lunarNoteEl.textContent = lunarOriginText;
+      lunarNoteEl.hidden = false;
+    } else {
+      lunarNoteEl.hidden = true;
+    }
+    document.getElementById("total-stars").textContent = stars(totalScore);
+    document.getElementById("total-text").textContent = totalText;
+
+    const subListEl = document.getElementById("sub-list");
+    subListEl.innerHTML = "";
+    subResults.forEach(function(s){
+      const row = document.createElement("div");
+      row.className = "sub-row";
+      row.innerHTML =
+        '<div class="sub-label">'+subLabels[s.key]+'</div>'+
+        '<div class="sub-body">'+
+          '<span class="sub-stars">'+stars(s.score)+'</span>'+
+          '<p class="sub-text">'+s.text+'</p>'+
+        '</div>';
+      subListEl.appendChild(row);
+    });
+
+    const luckyRowEl = document.getElementById("lucky-row");
+    luckyRowEl.innerHTML =
+      '<div class="lucky-chip"><span class="lucky-dot" style="background:'+luckyColor.hex+'"></span>행운의 색 · '+luckyColor.name+'</div>'+
+      '<div class="lucky-chip">🔢 행운의 숫자 · '+luckyNumber+'</div>'+
+      '<div class="lucky-chip">🧭 행운의 방향 · '+luckyDirection+'</div>';
+
+    document.getElementById("element-swatch").style.background = element.color;
+    document.getElementById("element-text").textContent = "오늘은 "+element.name+"의 기운, "+element.desc;
+
+    renderDial(document.getElementById("dial"), animalIdx, daysAlive, element.color);
+
+    renderBioGauges(document.getElementById("bio-gauges"), birthDayNum, todayDayNum);
+    document.getElementById("days-alive-inline").textContent = daysAlive.toLocaleString();
+
+    screenInput.classList.remove("active");
+    screenResult.classList.add("active");
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  document.getElementById("back-btn").addEventListener("click", function(){
+    screenResult.classList.remove("active");
+    screenInput.classList.add("active");
+  });
+
+})();
+</script>
+</body>
+</html>
