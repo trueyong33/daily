@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 운세 &amp; 바이오리듬</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#12141f;
+    --panel:#1c1f2e;
+    --panel-2:#242840;
+    --paper:#f4ecd8;
+    --paper-2:#ece0c4;
+    --ink:#2b2620;
+    --gold:#d4af6a;
+    --gold-soft:#e8cf9c;
+    --wood:#6fa287;
+    --fire:#c64b3c;
+    --water:#4a7fb5;
+    --earth:#c9a24b;
+    --cream:#ede6d6;
+    --muted:#9a97ad;
+    --font-display:'Song Myung', 'Noto Sans KR', serif;
+    --font-body:'Noto Sans KR', system-ui, -apple-system, sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1.5px 1.5px at 10% 15%, rgba(237,230,214,.5) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 80% 8%, rgba(237,230,214,.4) 50%, transparent 51%),
+      radial-gradient(1px 1px at 60% 30%, rgba(237,230,214,.35) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 30% 60%, rgba(237,230,214,.3) 50%, transparent 51%),
+      radial-gradient(1px 1px at 90% 70%, rgba(237,230,214,.4) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 20% 85%, rgba(237,230,214,.3) 50%, transparent 51%),
+      radial-gradient(ellipse at 50% -10%, #232744 0%, var(--void) 55%);
+    background-color:var(--void);
+    color:var(--cream);
+    font-family:var(--font-body);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 64px;
+  }
+  .app{width:100%;max-width:480px;}
+  .app-header{text-align:center;margin-bottom:28px;}
+  .app-header h1{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:2rem;
+    margin:0;
+    color:var(--gold-soft);
+    letter-spacing:.02em;
+  }
+  .app-header .sub{
+    margin:4px 0 0;
+    font-size:.8rem;
+    letter-spacing:.35em;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .screen{display:none;}
+  .screen.active{display:block;animation:fadeIn .5s ease both;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---- input screen ---- */
+  .fortune-form{
+    background:var(--panel);
+    border:1px solid rgba(212,175,106,.25);
+    border-radius:18px;
+    padding:28px 24px 32px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    box-shadow:0 20px 40px rgba(0,0,0,.35);
+  }
+  .fortune-form label{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    font-size:.9rem;
+    color:var(--cream);
+  }
+  .fortune-form .optional{color:var(--muted);font-size:.75rem;font-weight:400;}
+  .fortune-form input{
+    background:var(--void);
+    border:1px solid rgba(154,151,173,.35);
+    border-radius:10px;
+    padding:12px 14px;
+    color:var(--cream);
+    font-family:var(--font-mono);
+    font-size:.95rem;
+  }
+  .fortune-form input:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:1px;
+    border-color:var(--gold);
+  }
+  .fortune-form input::-webkit-calendar-picker-indicator{filter:invert(.8);}
+  .fortune-form select{
+    background:var(--void);
+    border:1px solid rgba(154,151,173,.35);
+    border-radius:10px;
+    padding:12px 10px;
+    color:var(--cream);
+    font-family:var(--font-mono);
+    font-size:.9rem;
+  }
+  .fortune-form select:focus-visible{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);}
+  .field-label{font-size:.9rem;color:var(--cream);}
+  .cal-type-group{display:flex;flex-direction:column;gap:8px;}
+  .cal-toggle{display:flex;gap:8px;}
+  .cal-toggle-btn{
+    flex:1;
+    background:var(--void);
+    border:1px solid rgba(154,151,173,.35);
+    color:var(--muted);
+    border-radius:10px;
+    padding:9px 0;
+    font-family:var(--font-body);
+    font-size:.85rem;
+    cursor:pointer;
+  }
+  .cal-toggle-btn.active{
+    background:rgba(212,175,106,.15);
+    border-color:var(--gold);
+    color:var(--gold-soft);
+    font-weight:700;
+  }
+  .cal-toggle-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .cal-block{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .lunar-selects{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;}
+  .leap-check{
+    display:flex;align-items:center;gap:8px;
+    font-size:.82rem;color:var(--muted);
+    cursor:pointer;
+  }
+  .leap-check input{width:16px;height:16px;accent-color:var(--gold);}
+  .leap-info{font-size:.75rem;color:var(--muted);margin:0;}
+  .field-error{
+    font-size:.78rem;color:var(--fire);margin:0;
+    background:rgba(198,75,60,.12);
+    border-radius:8px;padding:8px
