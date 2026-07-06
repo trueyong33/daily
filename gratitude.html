@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>감사일기</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="감사일기">
+<meta name="theme-color" content="#3B2E39">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1E9EE;
+    --paper-2:#E7DAE2;
+    --ink:#3B2E39;
+    --muted:#8C7A87;
+    --line:#D9C9D3;
+    --rose:#B76E79;
+    --gold:#C9A227;
+    --font-display:"Lora",serif;
+    --font-body:"Inter",-apple-system,sans-serif;
+    --font-mono:"IBM Plex Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:640px;margin:0 auto;padding:24px 16px 60px;}
+
+  .cover{
+    background:var(--ink);color:#F1E9EE;border-radius:16px;padding:20px 22px 16px;
+    box-shadow:0 10px 24px -12px rgba(59,46,57,.5);
+  }
+  .cover h1{font-family:var(--font-display);font-weight:700;font-size:23px;margin:0 0 3px;}
+  .cover .tag{font-family:var(--font-mono);font-size:11px;color:#CBB8C4;letter-spacing:.05em;}
+  .cover .streak{margin-top:10px;font-family:var(--font-mono);font-size:12px;color:#E7D6E0;}
+  .cover .streak b{color:#fff;}
+
+  .tabs{display:flex;gap:6px;margin:16px 0 16px;border-bottom:1px solid var(--line);}
+  .tab-btn{
+    flex:1;background:none;border:none;padding:11px 6px;font-family:var(--font-body);
+    font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--rose);border-bottom-color:var(--rose);}
+
+  .panel{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .panel-title{font-family:var(--font-display);font-weight:700;font-size:15px;margin:0 0 12px;}
+
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cal-nav button{background:none;border:1px solid var(--line);border-radius:7px;width:28px;height:28px;cursor:pointer;color:var(--ink);font-weight:700;}
+  .cal-nav .month-label{font-family:var(--font-display);font-weight:700;font-size:15px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-dow{text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--muted);padding-bottom:4px;font-weight:600;}
+  .cal-cell{aspect-ratio:1;border-radius:8px;border:1px solid transparent;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;}
+  .cal-cell.blank{visibility:hidden;pointer-events:none;}
+  .cal-cell .d{font-family:var(--font-mono);font-size:12px;font-weight:600;}
+  .cal-cell.today .d{color:var(--gold);}
+  .cal-cell.selected{border-color:var(--rose);background:#EBD9DF;}
+  .cal-cell .dot{width:5px;height:5px;border-radius:50%;background:transparent;}
+  .cal-cell .dot.has{background:var(--rose);}
+
+  .day-header{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-bottom:12px;display:flex;align-items:baseline;gap:8px;}
+  .day-header .big{font-family:var(--font-display);font-size:18px;color:var(--ink);font-weight:700;}
+
+  .line-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .line-num{
+    font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--rose);
+    width:20px;flex-shrink:0;text-align:center;
+  }
+  .line-row input{
+    flex:1;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+    font-family:var(--font-body);font-size:14px;color:var(--ink);outline:none;
+  }
+  .line-row input:focus{border-color:var(--rose);}
+  .entry-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;}
+  .btn{border:none;border-radius:8px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;}
+  .btn.save{background:var(--rose);color:#fff;}
+  .btn.del{background:none;border:1px solid var(--line);color:var(--muted);}
+  .btn.del:hover{color:var(--rose);border-color:var(--rose);}
+  .save-msg{font-family:var(--font-mono);font-size:11px;color:var(--rose);text-align:right;margin-top:4px;min-height:14px;}
+
+  .entry-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .entry-card .ehead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .entry-card .edate{font-family:var(--font-display);font-weight:700;font-size:14.5px;}
+  .entry-card .edow{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-left:6px;}
+  .entry-card ol{margin:0;padding-left:20px;}
+  .entry-card li{font-size:13.5px;line-height:1.6;margin-bottom:2px;}
+  .entry-card .ebtns{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;}
+  .link-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;}
+  .link-btn:hover{color:var(--rose);}
+  .empty-note{color:var(--muted);font-size:13px;text-align:center;padding:22px 6px;line-height:1.7;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="cover">
+    <h1>감사일기</h1>
+    <div class="tag">3 LINES A DAY</div>
+    <div class="streak" id="streakLine"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn" data-tab="calendar">캘린더</button>
+    <button class="tab-btn" data-tab="list">전체보기</button>
+  </div>
+  <div id="view"></div>
+</div>
+
+<script>
+const LS_KEY = "gratitude-journal:entries";
+let entries = {};
+let currentTab = "calendar";
+let viewYear, viewMonth;
+let selectedDate;
+
+function todayStr(){ return fmtDate(new Date()); }
+function fmtDate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function loadData(){
+  try{ entries = JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ entries = {}; }
+}
+function saveData(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(entries)); }catch(e){ console.warn(e); }
+}
+
+function hasEntry(dateStr){
+  const e = entries[dateStr];
+  return e && e.lines && e.lines.some(l=>l && l.trim());
+}
+
+function computeStreak(){
+  let streak = 0;
+  let d = new Date();
+  while(true){
+    const ds = fmtDate(d);
+    if(hasEntry(ds)){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+function init(){
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
+  selectedDate = todayStr();
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ currentTab = btn.dataset.tab; render(); });
+  });
+  loadData();
+  render();
+}
+
+function render(){
+  document.querySelectorAll(".tab-btn").forEach(b=> b.classList.toggle("active", b.dataset.tab===currentTab));
+  const streak = computeStreak();
+  document.getElementById("streakLine").innerHTML = streak>0
+    ? `연속 <b>${streak}</b>일째 감사일기를 쓰고 있어요`
+    : `오늘부터 감사일기를 시작해보세요`;
+  const view = document.getElementById("view");
+  if(currentTab==="calendar"){ view.innerHTML = calendarTabHtml(); bindCalendarTab(); }
+  else { view.innerHTML = listTabHtml(); bindListTab(); }
+}
+
+function calendarTabHtml(){
+  return `
+    <div class="panel">
+      <div class="cal-nav">
+        <button id="prevMonth">‹</button>
+        <div class="month-label">${viewYear}년 ${viewMonth+1}월</div>
+        <button id="nextMonth">›</button>
+      </div>
+      <div class="cal-grid">
+        ${["일","월","화","수","목","금","토"].map(l=>`<div class="cal-dow">${l}</div>`).join("")}
+        ${calendarCellsHtml()}
+      </div>
+    </div>
+    <div class="panel">
+      ${entryFormHtml()}
+    </div>
+  `;
+}
+
+function calendarCellsHtml(){
+  const first = new Date(viewYear, viewMonth, 1);
+  const leadBlanks = first.getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const t = todayStr();
+  let cells = "";
+  for(let i=0;i<leadBlanks;i++) cells += `<div class="cal-cell blank"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const dStr = fmtDate(new Date(viewYear, viewMonth, day));
+    cells += `<div class="cal-cell ${dStr===t?"today":""} ${dStr===selectedDate?"selected":""}" data-date="${dStr}">
+      <div class="d">${day}</div>
+      <div class="dot ${hasEntry(dStr)?"has":""}"></div>
+    </div>`;
+  }
+  return cells;
+}
+
+function entryFormHtml(){
+  const dObj = new Date(selectedDate+"T00:00:00");
+  const weekdayLabel = "일월화수목금토"[dObj.getDay()];
+  const e = entries[selectedDate];
+  const lines = (e && e.lines) ? e.lines : ["","",""];
+  return `
+    <div class="day-header"><span class="big">${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일</span><span>(${weekdayLabel})</span></div>
+    ${[0,1,2].map(i=>`
+      <div class="line-row">
+        <div class="line-num">${i+1}</div>
+        <input type="text" class="entry-line" data-idx="${i}" maxlength="80" placeholder="오늘 감사한 일 ${i+1}" value="${escapeHtml(lines[i]||"")}">
+      </div>
+    `).join("")}
+    <div class="entry-actions">
+      ${hasEntry(selectedDate) ? `<button class="btn del" id="delEntryBtn">삭제</button>` : ""}
+      <button class="btn save" id="saveEntryBtn">저장</button>
+    </div>
+    <div class="save-msg" id="saveMsg"></div>
+  `;
+}
+
+function bindCalendarTab(){
+  document.getElementById("prevMonth").addEventListener("click", ()=>{
+    viewMonth--; if(viewMonth<0){ viewMonth=11; viewYear--; } render();
+  });
+  document.getElementById("nextMonth").addEventListener("click", ()=>{
+    viewMonth++; if(viewMonth>11){ viewMonth=0; viewYear++; } render();
+  });
+  document.querySelectorAll(".cal-cell[data-date]").forEach(cell=>{
+    cell.addEventListener("click", ()=>{ selectedDate = cell.dataset.date; render(); });
+  });
+  document.getElementById("saveEntryBtn").addEventListener("click", ()=>{
+    const lines = Array.from(document.querySelectorAll(".entry-line")).map(inp=>inp.value.trim());
+    entries[selectedDate] = { lines, updatedAt: new Date().toISOString() };
+    saveData();
+    render();
+    const msg = document.getElementById("saveMsg");
+    if(msg) msg.textContent = "저장했어요";
+  });
+  const delBtn = document.getElementById("delEntryBtn");
+  if(delBtn){
+    delBtn.addEventListener("click", ()=>{
+      delete entries[selectedDate];
+      saveData();
+      render();
+    });
+  }
+}
+
+function listTabHtml(){
+  const dates = Object.keys(entries).filter(d=>hasEntry(d)).sort().reverse();
+  return `
+    <div class="panel">
+      <div class="panel-title">지금까지 쓴 감사일기</div>
+      ${dates.length===0
+        ? `<div class="empty-note">아직 쓴 감사일기가 없어요.<br>캘린더 탭에서 오늘의 감사한 일을 적어보세요.</div>`
+        : dates.map(d=>entryCardHtml(d)).join("")
+      }
+    </div>
+  `;
+}
+
+function entryCardHtml(dateStr){
+  const dObj = new Date(dateStr+"T00:00:00");
+  const weekdayLabel = "일월화수목금토"[dObj.getDay()];
+  const lines = entries[dateStr].lines.filter(l=>l && l.trim());
+  return `
+    <div class="entry-card">
+      <div class="ehead">
+        <span class="edate">${dObj.getFullYear()}.${String(dObj.getMonth()+1).padStart(2,"0")}.${String(dObj.getDate()).padStart(2,"0")}<span class="edow">(${weekdayLabel})</span></span>
+      </div>
+      <ol>${lines.map(l=>`<li>${escapeHtml(l)}</li>`).join("")}</ol>
+      <div class="ebtns">
+        <button class="link-btn" data-edit="${dateStr}">수정</button>
+        <button class="link-btn" data-del="${dateStr}">삭제</button>
+      </div>
+    </div>
+  `;
+}
+
+function bindListTab(){
+  document.querySelectorAll("[data-edit]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const d = btn.dataset.edit;
+      const dObj = new Date(d+"T00:00:00");
+      viewYear = dObj.getFullYear();
+      viewMonth = dObj.getMonth();
+      selectedDate = d;
+      currentTab = "calendar";
+      render();
+    });
+  });
+  document.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      delete entries[btn.dataset.del];
+      saveData();
+      render();
+    });
+  });
+}
+
+init();
+</script>
+</body>
+</html>
