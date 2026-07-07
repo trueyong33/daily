@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>물 마시기</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="물 마시기">
+<meta name="theme-color" content="#0F3D3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EAF4F4;
+    --paper-2:#DCEEED;
+    --ink:#0F3D3E;
+    --muted:#5E7C7E;
+    --line:#C1DEDC;
+    --accent:#1C8C99;
+    --accent-2:#5FB6BE;
+    --font-display:"Outfit",sans-serif;
+    --font-body:"Inter",-apple-system,sans-serif;
+    --font-mono:"IBM Plex Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:640px;margin:0 auto;padding:24px 16px 60px;}
+
+  .cover{background:linear-gradient(160deg, var(--ink), #175456);color:#EAF4F4;border-radius:16px;padding:20px 22px 16px;box-shadow:0 10px 24px -12px rgba(15,61,62,.5);}
+  .cover h1{font-family:var(--font-display);font-weight:700;font-size:23px;margin:0 0 3px;}
+  .cover .tag{font-family:var(--font-mono);font-size:11px;color:#A9CFCE;letter-spacing:.05em;}
+  .cover .today-line{margin-top:12px;display:flex;align-items:baseline;gap:8px;font-family:var(--font-mono);font-size:13px;color:#D3EAE9;}
+  .cover .today-line b{font-size:19px;color:#fff;}
+
+  .tabs{display:flex;gap:6px;margin:16px 0 16px;border-bottom:1px solid var(--line);}
+  .tab-btn{flex:1;background:none;border:none;padding:11px 6px;font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+  .panel{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .panel-title{font-family:var(--font-display);font-weight:700;font-size:15px;margin:0 0 12px;}
+
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cal-nav button{background:none;border:1px solid var(--line);border-radius:7px;width:28px;height:28px;cursor:pointer;color:var(--ink);font-weight:700;}
+  .cal-nav .month-label{font-family:var(--font-display);font-weight:700;font-size:15px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-dow{text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--muted);padding-bottom:4px;font-weight:600;}
+  .cal-cell{aspect-ratio:1;border-radius:8px;border:1px solid transparent;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;}
+  .cal-cell.blank{visibility:hidden;pointer-events:none;}
+  .cal-cell .d{font-family:var(--font-mono);font-size:12px;font-weight:600;}
+  .cal-cell.today .d{color:var(--accent);}
+  .cal-cell.selected{border-color:var(--accent);background:#CDEAE8;}
+  .cal-cell .dot{width:16px;height:3px;border-radius:2px;background:var(--line);}
+  .cal-cell .dot.partial{background:var(--accent-2);}
+  .cal-cell .dot.done{background:var(--accent);}
+
+  .day-header{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-bottom:14px;display:flex;align-items:baseline;gap:8px;}
+  .day-header .big{font-family:var(--font-display);font-size:18px;color:var(--ink);font-weight:700;}
+
+  .cup-row{display:flex;justify-content:center;gap:14px;margin-bottom:14px;}
+  .cup-btn{
+    width:60px;height:60px;border-radius:50%;border:2px solid var(--line);background:var(--paper);
+    font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .15s, background .15s, border-color .15s;
+  }
+  .cup-btn:hover{transform:scale(1.06);}
+  .cup-btn.filled{background:var(--accent);border-color:var(--accent);box-shadow:0 4px 10px -4px rgba(28,140,153,.6);}
+  .cup-summary{text-align:center;font-family:var(--font-mono);font-size:13px;color:var(--muted);}
+  .cup-summary b{color:var(--ink);font-size:16px;}
+
+  .stat-hero{display:flex;flex-direction:column;align-items:center;padding:8px 0 16px;}
+  .stat-hero .ring{width:140px;height:140px;margin-bottom:10px;}
+  .stat-hero .pct{font-family:var(--font-mono);font-size:13px;color:var(--muted);}
+  .stat-hero .pct b{font-size:22px;color:var(--ink);}
+
+  .stat-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .stat-row .slabel{width:34px;flex-shrink:0;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);}
+  .stat-track{flex:1;height:9px;border-radius:5px;background:var(--paper);border:1px solid var(--line);overflow:hidden;}
+  .stat-fill{height:100%;background:var(--accent);border-radius:5px;}
+  .stat-val{width:44px;text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--muted);flex-shrink:0;}
+
+  .summary-grid{display:flex;gap:10px;margin-bottom:14px;}
+  .summary-card{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;}
+  .summary-card .sval{font-family:var(--font-mono);font-weight:700;font-size:18px;color:var(--ink);}
+  .summary-card .slab{font-size:11px;color:var(--muted);margin-top:2px;}
+  .empty-note{color:var(--muted);font-size:13px;text-align:center;padding:18px 6px;line-height:1.7;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="cover">
+    <h1>물 마시기</h1>
+    <div class="tag">2L A DAY · 500ML × 4</div>
+    <div class="today-line" id="todayLine"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn" data-tab="calendar">캘린더</button>
+    <button class="tab-btn" data-tab="stats">결과</button>
+  </div>
+  <div id="view"></div>
+</div>
+
+<script>
+const LS_KEY = "water-tracker:intake";
+const CUP_ML = 500;
+const GOAL_CUPS = 4;
+let intake = {};
+let currentTab = "calendar";
+let viewYear, viewMonth;
+let selectedDate;
+
+function todayStr(){ return fmtDate(new Date()); }
+function fmtDate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+
+function loadData(){
+  try{ intake = JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ intake = {}; }
+}
+function saveData(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(intake)); }catch(e){ console.warn(e); } }
+
+function cupsFor(dateStr){
+  return intake[dateStr] || [false,false,false,false];
+}
+function countFor(dateStr){
+  return cupsFor(dateStr).filter(Boolean).length;
+}
+
+function init(){
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
+  selectedDate = todayStr();
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ currentTab = btn.dataset.tab; render(); });
+  });
+  loadData();
+  render();
+}
+
+function render(){
+  document.querySelectorAll(".tab-btn").forEach(b=> b.classList.toggle("active", b.dataset.tab===currentTab));
+  renderTodayLine();
+  const view = document.getElementById("view");
+  if(currentTab==="calendar"){ view.innerHTML = calendarTabHtml(); bindCalendarTab(); }
+  else { view.innerHTML = statsTabHtml(); }
+}
+
+function renderTodayLine(){
+  const c = countFor(todayStr());
+  const el = document.getElementById("todayLine");
+  el.innerHTML = `오늘 <b>${c}</b>/${GOAL_CUPS}컵 · <b>${c*CUP_ML}</b>ml / ${GOAL_CUPS*CUP_ML}ml`;
+}
+
+function calendarTabHtml(){
+  return `
+    <div class="panel">
+      <div class="cal-nav">
+        <button id="prevMonth">‹</button>
+        <div class="month-label">${viewYear}년 ${viewMonth+1}월</div>
+        <button id="nextMonth">›</button>
+      </div>
+      <div class="cal-grid">
+        ${["일","월","화","수","목","금","토"].map(l=>`<div class="cal-dow">${l}</div>`).join("")}
+        ${calendarCellsHtml()}
+      </div>
+    </div>
+    <div class="panel">
+      ${cupPanelHtml()}
+    </div>
+  `;
+}
+
+function calendarCellsHtml(){
+  const first = new Date(viewYear, viewMonth, 1);
+  const leadBlanks = first.getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const t = todayStr();
+  let cells = "";
+  for(let i=0;i<leadBlanks;i++) cells += `<div class="cal-cell blank"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const dStr = fmtDate(new Date(viewYear, viewMonth, day));
+    const c = countFor(dStr);
+    let dotClass = "";
+    if(c>0) dotClass = c>=GOAL_CUPS ? "done" : "partial";
+    cells += `<div class="cal-cell ${dStr===t?"today":""} ${dStr===selectedDate?"selected":""}" data-date="${dStr}">
+      <div class="d">${day}</div>
+      <div class="dot ${dotClass}"></div>
+    </div>`;
+  }
+  return cells;
+}
+
+function cupPanelHtml(){
+  const dObj = new Date(selectedDate+"T00:00:00");
+  const weekdayLabel = "일월화수목금토"[dObj.getDay()];
+  const cups = cupsFor(selectedDate);
+  const c = cups.filter(Boolean).length;
+  return `
+    <div class="day-header"><span class="big">${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일</span><span>(${weekdayLabel})</span></div>
+    <div class="cup-row">
+      ${cups.map((filled,i)=>`<button class="cup-btn ${filled?"filled":""}" data-cup="${i}">💧</button>`).join("")}
+    </div>
+    <div class="cup-summary"><b>${c*CUP_ML}</b>ml / ${GOAL_CUPS*CUP_ML}ml 마셨어요 (${c}/${GOAL_CUPS}컵)</div>
+  `;
+}
+
+function bindCalendarTab(){
+  document.getElementById("prevMonth").addEventListener("click", ()=>{
+    viewMonth--; if(viewMonth<0){ viewMonth=11; viewYear--; } render();
+  });
+  document.getElementById("nextMonth").addEventListener("click", ()=>{
+    viewMonth++; if(viewMonth>11){ viewMonth=0; viewYear++; } render();
+  });
+  document.querySelectorAll(".cal-cell[data-date]").forEach(cell=>{
+    cell.addEventListener("click", ()=>{ selectedDate = cell.dataset.date; render(); });
+  });
+  document.querySelectorAll(".cup-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = Number(btn.dataset.cup);
+      const cups = cupsFor(selectedDate).slice();
+      cups[idx] = !cups[idx];
+      intake[selectedDate] = cups;
+      saveData();
+      render();
+    });
+  });
+}
+
+function statsTabHtml(){
+  const t = todayStr();
+  const todayCount = countFor(t);
+  const pct = Math.min(100, Math.round((todayCount/GOAL_CUPS)*100));
+
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const dayNums = Array.from({length:daysInMonth}, (_,i)=>i+1);
+  const dayCounts = dayNums.map(d=> countFor(fmtDate(new Date(year, month, d))));
+  const totalMl = dayCounts.reduce((s,c)=>s+c*CUP_ML, 0);
+  const daysElapsed = now.getDate();
+  const goalDays = dayCounts.filter(c=>c>=GOAL_CUPS).length;
+  const avgMl = daysElapsed>0 ? Math.round(totalMl/daysElapsed) : 0;
+
+  const R = 60, C = 2*Math.PI*R;
+  const dashOffset = C - (pct/100)*C;
+
+  return `
+    <div class="panel">
+      <div class="panel-title">오늘 달성률</div>
+      <div class="stat-hero">
+        <svg class="ring" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--paper)" stroke-width="14"/>
+          <circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--accent)" stroke-width="14"
+            stroke-dasharray="${C}" stroke-dashoffset="${dashOffset}" stroke-linecap="round"
+            transform="rotate(-90 70 70)"/>
+          <text x="70" y="76" text-anchor="middle" font-family="IBM Plex Mono" font-size="26" font-weight="700" fill="var(--ink)">${pct}%</text>
+        </svg>
+        <div class="pct"><b>${todayCount}</b>/${GOAL_CUPS}컵 · ${todayCount*CUP_ML}ml 마셨어요</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">${year}년 ${month+1}월 요약</div>
+      <div class="summary-grid">
+        <div class="summary-card"><div class="sval">${(totalMl/1000).toFixed(1)}L</div><div class="slab">이번 달 총량</div></div>
+        <div class="summary-card"><div class="sval">${avgMl}ml</div><div class="slab">하루 평균</div></div>
+        <div class="summary-card"><div class="sval">${goalDays}/${daysElapsed}</div><div class="slab">목표 달성일</div></div>
+      </div>
+      ${dayNums.map((d,i)=>`
+        <div class="stat-row">
+          <div class="slabel">${d}일</div>
+          <div class="stat-track"><div class="stat-fill" style="width:${(dayCounts[i]/GOAL_CUPS)*100}%;"></div></div>
+          <div class="stat-val">${dayCounts[i]*CUP_ML}ml</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
