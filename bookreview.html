@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>독서 리뷰</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="독서 리뷰">
+<meta name="theme-color" content="#2C2420">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE6D6;
+    --paper-2:#E2D8C2;
+    --ink:#2C2420;
+    --muted:#8A7F70;
+    --line:#D2C4A8;
+    --maroon:#7A2E2E;
+    --gold:#B08D42;
+    --font-display:"Libre Baskerville",serif;
+    --font-body:"Inter",-apple-system,sans-serif;
+    --font-mono:"IBM Plex Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:640px;margin:0 auto;padding:24px 16px 60px;}
+
+  .cover{background:var(--ink);color:#EDE6D6;border-radius:16px;padding:20px 22px 16px;box-shadow:0 10px 24px -12px rgba(44,36,32,.5);}
+  .cover h1{font-family:var(--font-display);font-weight:700;font-size:22px;margin:0 0 3px;}
+  .cover .tag{font-family:var(--font-mono);font-size:11px;color:#BBAF9D;letter-spacing:.05em;}
+  .cover .goal-line{margin-top:12px;display:flex;align-items:baseline;gap:10px;font-family:var(--font-mono);font-size:12px;color:#D9CDB8;}
+  .cover .goal-line b{font-size:18px;color:#fff;}
+  .cover .goal-line b.over{color:#E0A05C;}
+
+  .tabs{display:flex;gap:6px;margin:16px 0 16px;border-bottom:1px solid var(--line);}
+  .tab-btn{flex:1;background:none;border:none;padding:11px 6px;font-family:var(--font-body);font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .tab-btn.active{color:var(--maroon);border-bottom-color:var(--maroon);}
+
+  .panel{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .panel-title{font-family:var(--font-display);font-weight:700;font-size:15px;margin:0 0 12px;}
+
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}
+  .field input[type=text], .field input[type=number]{
+    width:100%;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+    font-family:var(--font-body);font-size:14px;color:var(--ink);outline:none;
+  }
+  .field input:focus{border-color:var(--maroon);}
+  .search-row{display:flex;gap:8px;margin-top:12px;}
+  .btn{border:none;border-radius:8px;padding:10px 18px;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .btn.primary{background:var(--maroon);color:#fff;}
+  .btn.ghost{background:none;border:1px solid var(--line);color:var(--muted);}
+  .search-msg{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);margin-top:8px;min-height:14px;line-height:1.5;}
+
+  .candidate-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+  .candidate-info .ctitle{font-weight:700;font-size:14px;}
+  .candidate-info .cmeta{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:2px;}
+  .candidate-card .btn{flex-shrink:0;}
+
+  .book-row{display:flex;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;}
+  .book-row:last-child{border-bottom:none;}
+  .spine{width:5px;border-radius:3px;background:var(--gold);flex-shrink:0;}
+  .book-main{flex:1;}
+  .book-main .btitle{font-weight:700;font-size:14.5px;}
+  .book-main .bmeta{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:2px;}
+  .book-del{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;flex-shrink:0;padding:2px 6px;}
+  .book-del:hover{color:var(--maroon);}
+  .review-box{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin:-4px 4px 12px;}
+  .review-box .rmeta{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);margin-bottom:8px;}
+  .review-box .rdesc{font-size:13.5px;line-height:1.65;white-space:pre-wrap;}
+  .empty-note{color:var(--muted);font-size:13px;text-align:center;padding:22px 6px;line-height:1.7;}
+
+  .stat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .stat-row .slabel{width:56px;flex-shrink:0;font-family:var(--font-mono);font-size:12px;color:var(--muted);}
+  .stat-track{flex:1;height:9px;border-radius:5px;background:var(--paper);border:1px solid var(--line);overflow:hidden;}
+  .stat-fill{height:100%;background:var(--maroon);border-radius:5px;}
+  .stat-val{width:26px;text-align:right;font-family:var(--font-mono);font-size:12px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="cover">
+    <h1>독서 리뷰</h1>
+    <div class="tag">MY READING LOG</div>
+    <div class="goal-line" id="goalLine"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn" data-tab="library">서재</button>
+    <button class="tab-btn" data-tab="stats">통계</button>
+    <button class="tab-btn" data-tab="settings">설정</button>
+  </div>
+  <div id="view"></div>
+</div>
+
+<script>
+const LS_BOOKS = "book-review:books";
+const LS_SETTINGS = "book-review:settings";
+const LS_APIKEY = "book-review:apiKey";
+let books = [];
+let settings = { yearlyGoal: 12 };
+let currentTab = "library";
+let expandedId = null;
+let searchResults = [];
+
+async function generateReviewWithAI(title, author, existingDesc){
+  const key = localStorage.getItem(LS_APIKEY);
+  if(!key) throw new Error("NO_KEY");
+  const prompt = `책 제목: "${title}"${author ? ", 저자: "+author : ""}.
+${existingDesc ? "참고 정보(출판사 소개): "+existingDesc : ""}
+이 책의 핵심 내용을 한국어로 3~5문장 정도, 일목요연하게 정리해줘. 주요 주제, 핵심 메시지, 다루는 내용을 중심으로 써줘.
+만약 이 책에 대해 확실히 아는 내용이 없다면, 절대 지어내지 말고 "이 책에 대한 정보를 확인하지 못했어요. 직접 내용을 적어주세요."라고만 답해줘.`;
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": key,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 500,
+      messages: [{ role:"user", content: prompt }]
+    })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || "API 오류");
+  const text = (data.content||[]).map(b=>b.text||"").join("\n").trim();
+  return text || "AI가 답변을 생성하지 못했어요.";
+}
+
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function uid(){ return "b_"+Date.now()+"_"+Math.random().toString(36).slice(2,7); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+
+function loadData(){
+  try{ books = JSON.parse(localStorage.getItem(LS_BOOKS)) || []; }catch(e){ books = []; }
+  try{ settings = JSON.parse(localStorage.getItem(LS_SETTINGS)) || { yearlyGoal:12 }; }catch(e){ settings = { yearlyGoal:12 }; }
+}
+function saveBooks(){ try{ localStorage.setItem(LS_BOOKS, JSON.stringify(books)); }catch(e){ console.warn(e); } }
+function saveSettings(){ try{ localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); }catch(e){ console.warn(e); } }
+
+function booksInYear(year){ return books.filter(b=> new Date(b.dateRead).getFullYear()===year); }
+function booksInMonth(year, month){ return books.filter(b=>{ const d=new Date(b.dateRead); return d.getFullYear()===year && d.getMonth()===month; }); }
+
+async function searchBooks(title, author){
+  let url = "https://openlibrary.org/search.json?title="+encodeURIComponent(title);
+  if(author) url += "&author="+encodeURIComponent(author);
+  url += "&limit=5&fields=title,author_name,publisher,first_publish_year,key";
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("검색에 실패했어요.");
+  const data = await res.json();
+  const docs = data.docs || [];
+  const results = [];
+  for(const d of docs){
+    let description = "책 소개 정보를 찾을 수 없어요.";
+    if(d.key){
+      try{
+        const workRes = await fetch("https://openlibrary.org"+d.key+".json");
+        if(workRes.ok){
+          const work = await workRes.json();
+          if(work.description){
+            description = typeof work.description === "string" ? work.description : (work.description.value || description);
+          }
+        }
+      }catch(e){ /* description fetch is best-effort */ }
+    }
+    results.push({
+      title: d.title || title,
+      authors: (d.author_name||[]).join(", ") || author || "저자 미상",
+      publisher: (d.publisher && d.publisher[0]) || "정보 없음",
+      year: d.first_publish_year ? String(d.first_publish_year) : "정보 없음",
+      description: description
+    });
+  }
+  return results;
+}
+
+function init(){
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ currentTab = btn.dataset.tab; expandedId=null; render(); });
+  });
+  loadData();
+  render();
+}
+
+function render(){
+  document.querySelectorAll(".tab-btn").forEach(b=> b.classList.toggle("active", b.dataset.tab===currentTab));
+  renderGoalLine();
+  const view = document.getElementById("view");
+  if(currentTab==="library"){ view.innerHTML = libraryHtml(); bindLibrary(); }
+  else if(currentTab==="stats"){ view.innerHTML = statsHtml(); }
+  else { view.innerHTML = settingsHtml(); bindSettings(); }
+}
+
+function renderGoalLine(){
+  const year = new Date().getFullYear();
+  const readCount = booksInYear(year).length;
+  const remaining = settings.yearlyGoal - readCount;
+  const el = document.getElementById("goalLine");
+  el.innerHTML = `<span>${year}년 목표 ${settings.yearlyGoal}권 중 <b>${readCount}</b>권 읽음</span>
+    <span>남은 권수 <b class="${remaining<0?"over":""}">${remaining}</b>${remaining<0?" (목표 초과 달성!)":""}</span>`;
+}
+
+function libraryHtml(){
+  const sorted = [...books].sort((a,b)=> b.dateRead.localeCompare(a.dateRead));
+  return `
+    <div class="panel">
+      <div class="panel-title">책 추가하기</div>
+      <div class="field"><label>책 제목</label><input type="text" id="titleInput" placeholder="예: 아몬드" maxlength="60"></div>
+      <div class="field" style="margin-top:10px;"><label>저자</label><input type="text" id="authorInput" placeholder="예: 손원평" maxlength="40"></div>
+      <div class="search-row"><button class="btn ghost" id="searchBtn">자동으로 정보 채우기 (선택)</button></div>
+      <div class="search-msg" id="searchMsg">국내 도서는 자동 검색이 안 될 수 있어요. 그럴 땐 아래 칸에 직접 적어서 추가해주세요.</div>
+      <div id="candidateList"></div>
+      <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px;">
+        <div class="field"><label>출판사</label><input type="text" id="manualPublisher" maxlength="40"></div>
+        <div class="field" style="margin-top:10px;"><label>출판년도</label><input type="text" id="manualYear" maxlength="4" placeholder="예: 2023"></div>
+        <div class="field" style="margin-top:10px;">
+          <label>책 소개 / 내용 정리</label>
+          <textarea id="manualDesc" rows="4" maxlength="800" placeholder="책 내용을 정리해서 적어주세요" style="width:100%;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:var(--font-body);font-size:14px;color:var(--ink);outline:none;resize:vertical;"></textarea>
+          <div class="search-row"><button class="btn ghost" id="aiWriteBtn">AI로 자동 작성</button></div>
+          <div class="search-msg" id="aiMsg"></div>
+        </div>
+        <div class="search-row"><button class="btn primary" id="manualAddBtn">이 책 추가하기</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">읽은 책 (${books.length}권)</div>
+      ${sorted.length===0
+        ? `<div class="empty-note">아직 등록한 책이 없어요.<br>위에서 책을 추가해보세요.</div>`
+        : sorted.map(b=>bookRowHtml(b)).join("")
+      }
+    </div>
+  `;
+}
+
+function bookRowHtml(b){
+  const expanded = expandedId===b.id;
+  return `
+    <div class="book-row" data-book="${b.id}">
+      <div class="spine"></div>
+      <div class="book-main">
+        <div class="btitle">${escapeHtml(b.title)}</div>
+        <div class="bmeta">${escapeHtml(b.authors)} · ${escapeHtml(b.publisher)} · ${escapeHtml(b.year)} · 읽은 날 ${b.dateRead}</div>
+      </div>
+      <button class="book-del" data-del="${b.id}" title="삭제">×</button>
+    </div>
+    ${expanded ? `
+      <div class="review-box">
+        <div class="rmeta">${escapeHtml(b.publisher)} · ${escapeHtml(b.year)}년</div>
+        <div class="rdesc">${escapeHtml(b.description)}</div>
+      </div>
+    ` : ""}
+  `;
+}
+
+function bindLibrary(){
+  document.getElementById("searchBtn").addEventListener("click", async ()=>{
+    const title = document.getElementById("titleInput").value.trim();
+    const author = document.getElementById("authorInput").value.trim();
+    const msg = document.getElementById("searchMsg");
+    const candList = document.getElementById("candidateList");
+    if(!title){ msg.textContent = "책 제목을 먼저 입력해주세요."; return; }
+    msg.textContent = "검색 중…";
+    candList.innerHTML = "";
+    try{
+      searchResults = await searchBooks(title, author);
+      if(searchResults.length===0){
+        msg.textContent = "검색 결과가 없어요. 아래 칸에 직접 입력해주세요.";
+        return;
+      }
+      msg.textContent = "아래에서 맞는 책을 고르면 정보가 자동으로 채워져요.";
+      candList.innerHTML = searchResults.map((c,i)=>`
+        <div class="candidate-card">
+          <div class="candidate-info">
+            <div class="ctitle">${escapeHtml(c.title)}</div>
+            <div class="cmeta">${escapeHtml(c.authors)} · ${escapeHtml(c.publisher)} · ${escapeHtml(c.year)}</div>
+          </div>
+          <button class="btn ghost" data-fill="${i}">선택</button>
+        </div>
+      `).join("");
+      candList.querySelectorAll("[data-fill]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const c = searchResults[Number(btn.dataset.fill)];
+          document.getElementById("manualPublisher").value = c.publisher==="정보 없음" ? "" : c.publisher;
+          document.getElementById("manualYear").value = c.year==="정보 없음" ? "" : c.year;
+          document.getElementById("manualDesc").value = c.description.includes("찾을 수 없") ? "" : c.description;
+          msg.textContent = "정보를 채웠어요. 확인 후 아래 '이 책 추가하기'를 눌러주세요.";
+        });
+      });
+    }catch(e){
+      msg.textContent = "자동 검색에 실패했어요. 아래 칸에 직접 입력해서 추가해주세요.";
+    }
+  });
+
+  document.querySelectorAll(".book-row").forEach(row=>{
+    row.addEventListener("click", (e)=>{
+      if(e.target.closest("[data-del]")) return;
+      const id = row.dataset.book;
+      expandedId = (expandedId===id) ? null : id;
+      render();
+    });
+  });
+  document.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      books = books.filter(b=>b.id!==btn.dataset.del);
+      saveBooks();
+      render();
+    });
+  });
+
+  document.getElementById("aiWriteBtn").addEventListener("click", async ()=>{
+    const title = document.getElementById("titleInput").value.trim();
+    const author = document.getElementById("authorInput").value.trim();
+    const existingDesc = document.getElementById("manualDesc").value.trim();
+    const aiMsg = document.getElementById("aiMsg");
+    if(!title){ aiMsg.textContent = "책 제목을 먼저 입력해주세요."; return; }
+    if(!localStorage.getItem(LS_APIKEY)){
+      aiMsg.textContent = "설정 탭에서 Anthropic API 키를 먼저 등록해주세요.";
+      return;
+    }
+    aiMsg.textContent = "AI가 내용을 정리하는 중…";
+    try{
+      const text = await generateReviewWithAI(title, author, existingDesc);
+      document.getElementById("manualDesc").value = text;
+      aiMsg.textContent = "AI가 작성했어요. 내용을 확인하고 필요하면 수정해주세요.";
+    }catch(e){
+      aiMsg.textContent = e.message==="NO_KEY"
+        ? "설정 탭에서 Anthropic API 키를 먼저 등록해주세요."
+        : "AI 요청에 실패했어요: "+e.message;
+    }
+  });
+
+  document.getElementById("manualAddBtn").addEventListener("click", ()=>{
+    const title = document.getElementById("titleInput").value.trim();
+    const author = document.getElementById("authorInput").value.trim();
+    if(!title){ document.getElementById("searchMsg").textContent = "책 제목을 입력해주세요."; return; }
+    books.push({
+      id: uid(),
+      title,
+      authors: author || "저자 미상",
+      publisher: document.getElementById("manualPublisher").value.trim() || "정보 없음",
+      year: document.getElementById("manualYear").value.trim() || "정보 없음",
+      description: document.getElementById("manualDesc").value.trim() || "",
+      dateRead: todayStr()
+    });
+    saveBooks();
+    render();
+  });
+}
+
+function statsHtml(){
+  const year = new Date().getFullYear();
+  const monthNames = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+  const monthCounts = monthNames.map((_,i)=> booksInMonth(year, i).length);
+  const maxMonth = Math.max(1, ...monthCounts);
+
+  const yearsSet = new Set(books.map(b=> new Date(b.dateRead).getFullYear()));
+  yearsSet.add(year);
+  const years = Array.from(yearsSet).sort((a,b)=>b-a);
+  const yearCounts = years.map(y=> booksInYear(y).length);
+  const maxYear = Math.max(1, ...yearCounts);
+
+  return `
+    <div class="panel">
+      <div class="panel-title">${year}년 월별 독서량</div>
+      ${monthNames.map((label,i)=>`
+        <div class="stat-row">
+          <div class="slabel">${label}</div>
+          <div class="stat-track"><div class="stat-fill" style="width:${(monthCounts[i]/maxMonth)*100}%;"></div></div>
+          <div class="stat-val">${monthCounts[i]}</div>
+        </div>
+      `).join("")}
+    </div>
+    <div class="panel">
+      <div class="panel-title">연도별 독서량</div>
+      ${years.map((y,i)=>`
+        <div class="stat-row">
+          <div class="slabel">${y}년</div>
+          <div class="stat-track"><div class="stat-fill" style="width:${(yearCounts[i]/maxYear)*100}%;"></div></div>
+          <div class="stat-val">${yearCounts[i]}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function settingsHtml(){
+  const savedKey = localStorage.getItem(LS_APIKEY) || "";
+  return `
+    <div class="panel">
+      <div class="panel-title">연간 목표</div>
+      <div class="field">
+        <label>올해 목표 권수</label>
+        <input type="number" id="goalInput" min="1" max="500" value="${settings.yearlyGoal}">
+      </div>
+      <div class="search-row"><button class="btn primary" id="saveGoalBtn">저장</button></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">AI 리뷰 자동 작성 (선택)</div>
+      <div class="field">
+        <label>Anthropic API 키</label>
+        <input type="text" id="apiKeyInput" placeholder="sk-ant-..." value="${escapeHtml(savedKey)}">
+      </div>
+      <div class="search-row"><button class="btn primary" id="saveKeyBtn">저장</button><button class="btn ghost" id="clearKeyBtn">삭제</button></div>
+      <p style="font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:10px;">
+        console.anthropic.com에서 발급받은 키를 붙여넣으면, 책 추가 화면에서 "AI로 자동 작성" 버튼으로 책 소개를 써달라고 할 수 있어요.
+        키는 이 브라우저에만 저장되고 어디로도 전송되지 않아요. API 사용량에 따라 비용이 발생할 수 있어요.
+      </p>
+    </div>
+  `;
+}
+function bindSettings(){
+  document.getElementById("saveGoalBtn").addEventListener("click", ()=>{
+    const val = Number(document.getElementById("goalInput").value);
+    if(val > 0){
+      settings.yearlyGoal = val;
+      saveSettings();
+      render();
+    }
+  });
+  document.getElementById("saveKeyBtn").addEventListener("click", ()=>{
+    const key = document.getElementById("apiKeyInput").value.trim();
+    if(key) localStorage.setItem(LS_APIKEY, key);
+  });
+  document.getElementById("clearKeyBtn").addEventListener("click", ()=>{
+    localStorage.removeItem(LS_APIKEY);
+    document.getElementById("apiKeyInput").value = "";
+  });
+}
+
+init();
+</script>
+</body>
+</html>
