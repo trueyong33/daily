@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="100일 습관">
+<meta name="theme-color" content="#EEF1F5">
+<title>100일 습관</title>
+<style>
+:root{
+  --paper:#EEF1F5; --card:#fff; --ink:#152029; --muted:#77879A;
+  --line:#DEE4EB; --soft:#F5F7FA;
+  --shadow:0 1px 2px rgba(21,32,41,.06), 0 10px 24px -14px rgba(21,32,41,.25);
+  --font:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',system-ui,sans-serif;
+  --num:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#0D131A;--card:#18202A;--ink:#E6EDF4;--muted:#7C8DA1;--line:#26313D;--soft:#131B23;--shadow:none}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);font-family:var(--font);
+  font-size:16px;line-height:1.45;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(env(safe-area-inset-bottom) + 90px) env(safe-area-inset-left);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:520px;margin:0 auto;padding:20px 16px 0}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;font-size:inherit}
+input,select{font-family:inherit;font-size:16px;color:var(--ink)}
+
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.brand .n{font-family:var(--num);font-weight:700}
+.date{font-size:13px;color:var(--muted);margin-top:2px}
+.iconbtn{width:38px;height:38px;border-radius:12px;background:var(--card);box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:center;font-size:17px}
+
+.summary{background:var(--card);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:16px}
+.summary .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.summary .lab{font-size:13px;color:var(--muted);font-weight:600}
+.summary .val{font-family:var(--num);font-size:15px;font-weight:700}
+.track{height:6px;border-radius:99px;background:var(--soft);overflow:hidden}
+.track > i{display:block;height:100%;border-radius:99px;background:var(--ink);transition:width .35s ease}
+
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:12px;
+  display:flex;gap:13px;align-items:center}
+.card .body{flex:1;min-width:0}
+.card h3{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.meta b{font-family:var(--num);font-weight:700;color:var(--ink)}
+.dots{display:flex;gap:3px;margin-top:9px}
+.dots span{flex:1;height:6px;border-radius:2px;background:var(--soft)}
+.dots span.on{background:var(--c)}
+.dots span.miss{background:var(--line)}
+.dots span.now{box-shadow:inset 0 0 0 1.5px var(--c)}
+.check{width:50px;height:50px;border-radius:16px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  background:var(--soft);color:var(--muted);font-size:22px;transition:transform .12s ease,background .18s ease}
+.check.on{background:var(--c);color:#fff}
+.check:active{transform:scale(.9)}
+.emo{font-size:20px;width:26px;text-align:center}
+
+.empty{text-align:center;padding:56px 20px;color:var(--muted)}
+.empty .big{font-size:34px;margin-bottom:10px}
+.empty p{margin:0 0 4px;font-size:14.5px}
+
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 22px);
+  background:var(--ink);color:var(--paper);padding:14px 26px;border-radius:99px;font-weight:700;font-size:15px;
+  box-shadow:0 8px 24px -6px rgba(21,32,41,.45);z-index:20}
+.fab:active{transform:translateX(-50%) scale(.96)}
+
+.back{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:14px;display:inline-block}
+.hero{background:var(--card);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.hero h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.03em}
+.hero .sub{font-size:13px;color:var(--muted);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.stat{background:var(--soft);border-radius:12px;padding:10px 8px;text-align:center}
+.stat .v{font-family:var(--num);font-size:17px;font-weight:800;letter-spacing:-.04em}
+.stat .k{font-size:10.5px;color:var(--muted);margin-top:1px;font-weight:600}
+
+.panel{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.panel .ttl{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:center}
+
+.calnav{display:flex;align-items:center;gap:6px}
+.calnav button{width:28px;height:28px;border-radius:8px;background:var(--soft);font-size:14px;line-height:1}
+.calnav .m{font-family:var(--num);font-weight:700;font-size:14px;color:var(--ink);min-width:82px;text-align:center}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .wd{text-align:center;font-size:11px;color:var(--muted);font-weight:700;padding-bottom:3px}
+.cal .wd:first-child{color:#D1495B}
+.day{aspect-ratio:1;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--num);font-size:13px;font-weight:600;background:transparent;color:var(--muted);position:relative}
+.day.in{background:var(--soft);color:var(--ink)}
+.day.done{background:var(--c);color:#fff;font-weight:800}
+.day.miss{background:var(--soft);color:var(--muted);opacity:.55}
+.day.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.day.out{opacity:.28}
+
+.grid100{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.g{aspect-ratio:1;border-radius:3px;background:var(--soft)}
+.g.done{background:var(--c)}
+.g.miss{background:var(--line)}
+.g.today{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.legend{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-top:11px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+
+.danger{color:#D1495B;font-weight:700;font-size:14px}
+.rowbtns{display:flex;gap:8px}
+.rowbtns button{flex:1;padding:12px;border-radius:13px;background:var(--soft);font-weight:700;font-size:14px}
+
+.mask{position:fixed;inset:0;background:rgba(10,16,22,.42);backdrop-filter:blur(2px);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom) + 20px);
+  max-height:92vh;overflow:auto;animation:up .25s cubic-bezier(.2,.8,.3,1)}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+.sheet h3{margin:0 0 16px;font-size:19px;font-weight:800;letter-spacing:-.03em}
+.f{margin-bottom:14px}
+.f label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.f input[type=text],.f input[type=number],.f input[type=date]{width:100%;padding:13px 14px;border-radius:13px;
+  border:1.5px solid var(--line);background:var(--soft);outline:none}
+.f input:focus{border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:9px 11px;border-radius:11px;background:var(--soft);font-size:18px;line-height:1}
+.chip.sel{box-shadow:inset 0 0 0 2px var(--ink)}
+.swatch{width:32px;height:32px;border-radius:10px}
+.swatch.sel{box-shadow:0 0 0 2.5px var(--card),0 0 0 4.5px var(--ink)}
+.presets{display:flex;gap:7px;margin-top:8px}
+.presets button{flex:1;padding:9px;border-radius:11px;background:var(--soft);font-size:13px;font-weight:700;font-family:var(--num)}
+.presets button.sel{background:var(--ink);color:var(--paper)}
+.save{width:100%;padding:15px;border-radius:15px;background:var(--ink);color:var(--paper);font-weight:800;font-size:15.5px;margin-top:6px}
+.cancel{width:100%;padding:13px;font-weight:700;color:var(--muted);font-size:14px;margin-top:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<input type="file" id="file" accept="application/json" style="display:none">
+
+<script>
+/* ---------- 저장 ---------- */
+const KEY='habit100.v1';
+const COLORS=['#0F8B8D','#D1495B','#3D5A80','#B0821F','#7B4B94','#5C8001','#0B7285','#B5446E'];
+const EMOJIS=['🌱','📚','🏃','💧','🧘','✍️','🎧','🥗','💪','🛏️','🚭','🎸','☀️','🧹'];
+const WD=['일','월','화','수','목','금','토'];
+
+let habits=[];
+let ui={view:'home',id:null,cal:null,form:null};
+
+function load(){ try{habits=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){habits=[]} }
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(habits))}catch(e){alert('저장 공간이 가득 찼습니다. 백업 후 정리해 주세요.')} }
+
+/* ---------- 날짜 ---------- */
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const diff=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const TODAY=()=>iso(new Date());
+
+/* ---------- 통계 ---------- */
+function stats(h){
+  const t=TODAY(), idx=diff(h.start,t);
+  const elapsed=Math.max(0,Math.min(idx+1,h.days));
+  const done=Object.keys(h.done||{}).filter(k=>{const i=diff(h.start,k);return i>=0&&i<h.days}).length;
+  const rate=elapsed?Math.round(done/elapsed*100):0;
+  const prog=Math.round(elapsed/h.days*100);
+  const on=i=>!!(h.done&&h.done[iso(addDays(parse(h.start),i))]);
+  let best=0,run=0;
+  for(let i=0;i<h.days;i++){ if(on(i)){run++;if(run>best)best=run} else if(i<=idx) run=0; }
+  let cur=0,j=Math.min(idx,h.days-1);
+  if(j>=0&&!on(j))j--;
+  while(j>=0&&on(j)){cur++;j--}
+  return{idx,elapsed,done,rate,prog,best,cur,left:Math.max(0,h.days-elapsed),
+         started:idx>=0, ended:idx>=h.days, todayDone:!!(h.done&&h.done[t])};
+}
+
+/* ---------- 렌더 ---------- */
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML = ui.view==='home'?home():detail();
+  document.querySelectorAll('.sheetroot').forEach(n=>n.remove());
+  if(ui.form) document.body.insertAdjacentHTML('beforeend',sheet());
+}
+
+function home(){
+  const t=TODAY();
+  const act=habits.filter(h=>{const s=stats(h);return s.started&&!s.ended});
+  const doneToday=act.filter(h=>h.done&&h.done[t]).length;
+  const pct=act.length?Math.round(doneToday/act.length*100):0;
+  const d=new Date();
+  let s=`<div class="top">
+    <div><div class="brand"><span class="n">100</span>일 습관</div>
+    <div class="date num">${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()} (${WD[d.getDay()]})</div></div>
+    <button class="iconbtn" data-act="backup">⋯</button></div>`;
+
+  if(!habits.length) return s+`<div class="empty"><div class="big">🌱</div>
+    <p><b>아직 만드는 중인 습관이 없어요.</b></p><p>아래에서 첫 습관을 하나 정해 보세요.</p></div>
+    <button class="fab" data-act="new">습관 추가</button>`;
+
+  s+=`<div class="summary"><div class="row"><span class="lab">오늘 완료</span>
+    <span class="val">${doneToday} / ${act.length}</span></div>
+    <div class="track"><i style="width:${pct}%"></i></div></div>`;
+
+  habits.forEach(h=>{
+    const st=stats(h);
+    const c=`--c:${h.color}`;
+    let dots='';
+    for(let k=13;k>=0;k--){
+      const day=iso(addDays(new Date(),-k));
+      const i=diff(h.start,day);
+      const cls = (i<0||i>=h.days)?'' : (h.done&&h.done[day])?'on' : (k===0?'now':'miss');
+      dots+=`<span class="${cls}"></span>`;
+    }
+    const label = !st.started ? `${-st.idx}일 뒤 시작`
+      : st.ended ? '기간 종료'
+      : `<b>${st.elapsed}</b>/${h.days}일차`;
+    s+=`<div class="card" style="${c}">
+      <div class="emo">${h.emoji}</div>
+      <div class="body" data-act="open" data-id="${h.id}">
+        <h3>${esc(h.name)}</h3>
+        <div class="meta">${label} <span>·</span> 달성률 <b>${st.rate}%</b></div>
+        <div class="dots">${dots}</div>
+      </div>
+      <button class="check ${st.todayDone?'on':''}" data-act="toggle" data-id="${h.id}"
+        ${(!st.started||st.ended)?'disabled style="opacity:.35"':''}>${st.todayDone?'✓':'○'}</button>
+    </div>`;
+  });
+  return s+`<button class="fab" data-act="new">습관 추가</button>`;
+}
+
+function detail(){
+  const h=habits.find(x=>x.id===ui.id); if(!h){ui.view='home';return home()}
+  const st=stats(h), c=`--c:${h.color}`;
+  const end=iso(addDays(parse(h.start),h.days-1));
+  let s=`<button class="back" data-act="home">‹ 목록</button>
+  <div class="hero" style="${c}">
+    <h2>${h.emoji} ${esc(h.name)}</h2>
+    <div class="sub num">${h.start.replace(/-/g,'.')} → ${end.replace(/-/g,'.')} · ${h.days}일</div>
+    <div class="stats">
+      <div class="stat"><div class="v">${st.rate}%</div><div class="k">달성률</div></div>
+      <div class="stat"><div class="v">${st.done}</div><div class="k">완료일</div></div>
+      <div class="stat"><div class="v">${st.cur}</div><div class="k">연속</div></div>
+      <div class="stat"><div class="v">${st.best}</div><div class="k">최장 연속</div></div>
+    </div>
+    <div style="margin-top:14px"><div class="summary" style="box-shadow:none;padding:0;background:none">
+      <div class="row"><span class="lab">기간 진행</span><span class="val">${st.elapsed}/${h.days}일 · 남은 ${st.left}일</span></div>
+      <div class="track"><i style="width:${st.prog}%;background:${h.color}"></i></div></div></div>
+  </div>`;
+
+  const cal=ui.cal||{y:new Date().getFullYear(),m:new Date().getMonth()};
+  const first=new Date(cal.y,cal.m,1), last=new Date(cal.y,cal.m+1,0);
+  s+=`<div class="panel" style="${c}"><div class="ttl"><span>캘린더</span>
+    <span class="calnav"><button data-act="mv" data-d="-1">‹</button>
+    <span class="m">${cal.y}.${String(cal.m+1).padStart(2,'0')}</span>
+    <button data-act="mv" data-d="1">›</button></span></div><div class="cal">`;
+  WD.forEach(w=>s+=`<div class="wd">${w}</div>`);
+  for(let i=0;i<first.getDay();i++) s+='<div></div>';
+  for(let d=1;d<=last.getDate();d++){
+    const day=iso(new Date(cal.y,cal.m,d)), i=diff(h.start,day);
+    const inP=i>=0&&i<h.days, done=!!(h.done&&h.done[day]);
+    const past=day<=TODAY();
+    let cls='day'+(inP?' in':' out')+(done?' done':'')+(inP&&past&&!done?' miss':'')+(day===TODAY()?' today':'');
+    s+=`<div class="${cls}" ${inP&&past?`data-act="mark" data-day="${day}"`:''}>${d}</div>`;
+  }
+  s+=`</div></div>`;
+
+  s+=`<div class="panel" style="${c}"><div class="ttl"><span>전체 ${h.days}일</span><span class="num">${st.done} / ${h.days}</span></div><div class="grid100">`;
+  for(let i=0;i<h.days;i++){
+    const day=iso(addDays(parse(h.start),i)), done=!!(h.done&&h.done[day]);
+    s+=`<div class="g${done?' done':''}${!done&&day<TODAY()?' miss':''}${day===TODAY()?' today':''}" title="${day}"></div>`;
+  }
+  s+=`</div><div class="legend"><span><i style="background:${h.color}"></i>완료</span>
+    <span><i style="background:var(--line)"></i>놓침</span>
+    <span><i style="background:var(--soft)"></i>남은 날</span></div></div>`;
+
+  s+=`<div class="panel"><div class="rowbtns">
+      <button data-act="edit">수정</button>
+      <button data-act="del" class="danger">삭제</button></div></div>`;
+  return s;
+}
+
+function sheet(){
+  const f=ui.form;
+  return `<div class="mask sheetroot" data-act="closemask"><div class="sheet">
+    <h3>${f.id?'습관 수정':'새 습관'}</h3>
+    <div class="f"><label>이름</label>
+      <input type="text" id="fName" value="${esc(f.name)}" placeholder="예) 아침 30분 독서" maxlength="24"></div>
+    <div class="f"><label>아이콘</label><div class="chips">
+      ${EMOJIS.map(e=>`<button class="chip ${e===f.emoji?'sel':''}" data-act="emo" data-v="${e}">${e}</button>`).join('')}
+    </div></div>
+    <div class="f"><label>색</label><div class="chips">
+      ${COLORS.map(c=>`<button class="swatch ${c===f.color?'sel':''}" style="background:${c}" data-act="col" data-v="${c}"></button>`).join('')}
+    </div></div>
+    <div class="f"><label>기간 (일)</label>
+      <input type="number" id="fDays" value="${f.days}" min="1" max="1000" inputmode="numeric">
+      <div class="presets">
+        ${[21,30,66,100].map(n=>`<button class="${+f.days===n?'sel':''}" data-act="days" data-v="${n}">${n}일</button>`).join('')}
+      </div></div>
+    <div class="f"><label>시작일</label><input type="date" id="fStart" value="${f.start}"></div>
+    <button class="save" data-act="save">${f.id?'변경 저장':'습관 시작하기'}</button>
+    <button class="cancel" data-act="close">취소</button>
+  </div></div>`;
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act, f=ui.form;
+  if(a==='closemask'&&e.target!==el) return;
+
+  if(a==='new'){ ui.form={id:null,name:'',emoji:'🌱',color:COLORS[0],days:100,start:TODAY()}; return render() }
+  if(a==='open'){ ui.view='detail'; ui.id=el.dataset.id; ui.cal=null; return render() }
+  if(a==='home'){ ui.view='home'; return render() }
+  if(a==='toggle'){
+    const h=habits.find(x=>x.id===el.dataset.id); const t=TODAY();
+    h.done=h.done||{}; h.done[t]?delete h.done[t]:h.done[t]=1; save(); return render();
+  }
+  if(a==='mark'){
+    const h=habits.find(x=>x.id===ui.id), d=el.dataset.day;
+    h.done=h.done||{}; h.done[d]?delete h.done[d]:h.done[d]=1; save(); return render();
+  }
+  if(a==='mv'){
+    const c=ui.cal||{y:new Date().getFullYear(),m:new Date().getMonth()};
+    const n=new Date(c.y,c.m+ +el.dataset.d,1); ui.cal={y:n.getFullYear(),m:n.getMonth()}; return render();
+  }
+  if(a==='edit'){ const h=habits.find(x=>x.id===ui.id); ui.form={...h}; return render() }
+  if(a==='del'){
+    if(confirm('이 습관과 기록을 모두 지웁니다. 계속할까요?')){
+      habits=habits.filter(x=>x.id!==ui.id); save(); ui.view='home'; render();
+    } return;
+  }
+  if(a==='emo'){ f.name=val('fName'); f.days=val('fDays'); f.start=val('fStart'); f.emoji=el.dataset.v; return render() }
+  if(a==='col'){ f.name=val('fName'); f.days=val('fDays'); f.start=val('fStart'); f.color=el.dataset.v; return render() }
+  if(a==='days'){ f.name=val('fName'); f.start=val('fStart'); f.days=+el.dataset.v; return render() }
+  if(a==='close'||a==='closemask'){ ui.form=null; return render() }
+  if(a==='save'){
+    const name=val('fName').trim(), days=Math.max(1,Math.min(1000,+val('fDays')||100)), start=val('fStart')||TODAY();
+    if(!name){ alert('습관 이름을 적어 주세요.'); return }
+    if(f.id){ const h=habits.find(x=>x.id===f.id); Object.assign(h,{name,days,start,emoji:f.emoji,color:f.color}); }
+    else habits.push({id:String(Date.now()),name,emoji:f.emoji,color:f.color,days,start,done:{}});
+    save(); ui.form=null; return render();
+  }
+  if(a==='backup'){
+    const c=prompt('1 = 백업 파일 내보내기\n2 = 백업 파일 가져오기','1');
+    if(c==='1'){
+      const b=new Blob([JSON.stringify(habits)],{type:'application/json'});
+      const u=URL.createObjectURL(b), a2=document.createElement('a');
+      a2.href=u; a2.download=`habit100-${TODAY()}.json`; a2.click(); URL.revokeObjectURL(u);
+    } else if(c==='2') document.getElementById('file').click();
+  }
+});
+const val=id=>{const n=document.getElementById(id);return n?n.value:''};
+
+document.getElementById('file').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+    const d=JSON.parse(r.result);
+    if(!Array.isArray(d)) throw 0;
+    if(confirm('현재 기록을 백업 내용으로 바꿉니다. 계속할까요?')){ habits=d; save(); ui.view='home'; render(); }
+  }catch(err){ alert('읽을 수 없는 파일입니다. 내보내기로 만든 JSON 파일을 골라 주세요.') } };
+  r.readAsText(f); e.target.value='';
+});
+
+load(); render();
+</script>
+</body>
+</html>
