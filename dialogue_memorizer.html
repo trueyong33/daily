@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>다이얼로그 암기장</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.11.0/mammoth.browser.min.js"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: #f4f3ef; color: #222;
+    padding-bottom: 76px;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: #2c2c2a; color: #fff;
+    padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+  header .stat { font-size: 12px; opacity: 0.8; }
+  main { padding: 14px; max-width: 480px; margin: 0 auto; }
+  section { margin-bottom: 22px; }
+  section h2 { font-size: 14px; color: #666; margin: 0 0 8px 4px; font-weight: 600; }
+  .card {
+    background: #fff; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between;
+  }
+  .card .left { flex: 1; min-width: 0; }
+  .card .day-badge { font-size: 11px; color: #999; font-weight: 600; }
+  .card .title { font-size: 15px; font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .sub { font-size: 12px; color: #999; margin-top: 2px; }
+  .btn {
+    border: none; border-radius: 10px; padding: 10px 16px; font-size: 14px; font-weight: 600;
+    cursor: pointer; -webkit-appearance: none;
+  }
+  .btn-primary { background: #2c2c2a; color: #fff; }
+  .btn-outline { background: #fff; color: #2c2c2a; border: 1.5px solid #ddd; }
+  .btn-danger { background: #fde7e7; color: #b23b3b; }
+  .btn-success { background: #e3f3e3; color: #2f7a2f; }
+  .btn-block { width: 100%; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .empty { text-align: center; color: #999; padding: 30px 10px; font-size: 13px; }
+  .empty .big { font-size: 28px; margin-bottom: 6px; }
+  nav.tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+    background: #fff; border-top: 1px solid #e5e5e5;
+    display: flex; padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  }
+  nav.tabbar button {
+    flex: 1; background: none; border: none; font-size: 11px; color: #999;
+    padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  nav.tabbar button.active { color: #2c2c2a; font-weight: 700; }
+  nav.tabbar button .icon { font-size: 18px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .modal-backdrop.hidden { display: none; }
+  .modal {
+    background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0;
+    max-height: 88vh; overflow-y: auto; padding: 18px 18px 24px;
+  }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .modal-head .x { font-size: 20px; color: #999; background: none; border: none; padding: 4px 8px; }
+  .day-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .day-title-ko { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .line-row { margin-bottom: 12px; padding: 10px 12px; background: #f6f6f4; border-radius: 10px; }
+  .line-row .speaker { font-size: 11px; font-weight: 700; color: #aaa; margin-bottom: 3px; }
+  .line-row .ko { font-size: 15px; line-height: 1.5; }
+  .line-row .en { font-size: 15px; line-height: 1.5; color: #1a6b46; margin-top: 6px; display: none; }
+  .line-row.revealed .en { display: block; }
+  .rate-row { display: flex; gap: 8px; margin-top: 16px; }
+  .rate-row .btn { flex: 1; }
+  .speak-btn { background: none; border: none; color: #888; font-size: 12px; padding: 4px 8px; }
+
+  .drop {
+    border: 2px dashed #ccc; border-radius: 14px; padding: 30px 16px; text-align: center; color: #888;
+    font-size: 13px; background: #fff;
+  }
+  .warn-box { background: #fff8e6; border: 1px solid #f0d888; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #7a5c00; margin-top: 10px; }
+  .day-list-row {
+    display: flex; align-items: center; justify-content: space-between; padding: 10px 4px;
+    border-bottom: 1px solid #eee; font-size: 13px;
+  }
+  .badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+  .badge-new { background: #eee; color: #777; }
+  .badge-learning { background: #fff2d6; color: #9a6a00; }
+  .badge-due { background: #ffe1e1; color: #b23b3b; }
+  .badge-mastered { background: #dff3e0; color: #2f7a2f; }
+  input[type=file] { display: block; margin: 12px auto 0; font-size: 13px; }
+  .settings-row { background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .settings-row label { font-size: 14px; }
+  select, input[type=number] { font-size: 14px; padding: 6px 8px; border-radius: 8px; border: 1px solid #ddd; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>다이얼로그 암기장</h1>
+  <span class="stat" id="headerStat"></span>
+</header>
+
+<main>
+
+  <div id="tab-home" class="tab-panel active">
+    <section>
+      <h2>오늘의 신규</h2>
+      <div id="newList"></div>
+    </section>
+    <section>
+      <h2>오늘 복습</h2>
+      <div id="reviewList"></div>
+    </section>
+  </div>
+
+  <div id="tab-list" class="tab-panel">
+    <section>
+      <h2>전체 100일 목록</h2>
+      <div id="allDaysList"></div>
+    </section>
+  </div>
+
+  <div id="tab-import" class="tab-panel">
+    <section>
+      <h2>워드 문서 가져오기</h2>
+      <div class="drop">
+        다이얼로그가 정리된 .docx 파일을 선택하세요<br>
+        (Day001. 영어제목 한글제목 / A: 영어문장 한글번역 형식 자동 인식)
+        <input type="file" id="fileInput" accept=".docx">
+      </div>
+      <div id="importResult"></div>
+    </section>
+  </div>
+
+  <div id="tab-settings" class="tab-panel">
+    <section>
+      <h2>설정</h2>
+      <div class="settings-row">
+        <label>하루 신규 학습 개수</label>
+        <select id="paceSelect">
+          <option value="1">1개</option>
+          <option value="2">2개</option>
+          <option value="3">3개</option>
+          <option value="5">5개</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label>복습 간격 (일)</label>
+        <span style="font-size:13px; color:#888;">1 → 3 → 7 → 14 → 30</span>
+      </div>
+    </section>
+    <section>
+      <h2>데이터 백업</h2>
+      <button class="btn btn-outline btn-block" id="exportBtn" style="margin-bottom:8px;">JSON으로 내보내기</button>
+      <input type="file" id="importJsonInput" accept=".json" style="margin-bottom:8px;">
+    </section>
+    <section>
+      <h2>초기화</h2>
+      <button class="btn btn-danger btn-block" id="resetBtn">전체 데이터 삭제</button>
+    </section>
+  </div>
+
+</main>
+
+<nav class="tabbar">
+  <button data-tab="home" class="active"><span class="icon">■</span>오늘</button>
+  <button data-tab="list"><span class="icon">≡</span>전체목록</button>
+  <button data-tab="import"><span class="icon">＋</span>가져오기</button>
+  <button data-tab="settings"><span class="icon">⚙</span>설정</button>
+</nav>
+
+<div class="modal-backdrop hidden" id="studyModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="day-title" id="studyTitleEn"></div>
+        <div class="day-title-ko" id="studyTitleKo"></div>
+      </div>
+      <button class="x" id="closeModal">✕</button>
+    </div>
+    <div id="studyLines"></div>
+    <div id="studyControls"></div>
+  </div>
+</div>
+
+<script>
+const STAGE_DAYS = [1, 3, 7, 14, 30];
+const DECK_KEY = 'dlg_deck_v1';
+const SETTINGS_KEY = 'dlg_settings_v1';
+const DAILY_KEY = 'dlg_daily_v1';
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function addDaysStr(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function loadDeck() {
+  try { return JSON.parse(localStorage.getItem(DECK_KEY)) || null; } catch(e) { return null; }
+}
+function saveDeck(deck) { localStorage.setItem(DECK_KEY, JSON.stringify(deck)); }
+
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || { pace: 1 }; } catch(e) { return { pace: 1 }; }
+}
+function saveSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+
+function loadDaily() {
+  const raw = localStorage.getItem(DAILY_KEY);
+  const today = todayStr();
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    if (parsed.date === today) return parsed;
+  }
+  const fresh = { date: today, newIntroduced: 0 };
+  localStorage.setItem(DAILY_KEY, JSON.stringify(fresh));
+  return fresh;
+}
+function saveDaily(d) { localStorage.setItem(DAILY_KEY, JSON.stringify(d)); }
+
+function splitEnKo(s) {
+  const m = s.match(/[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/);
+  if (!m) return { en: s.trim(), ko: '' };
+  const idx = m.index;
+  return { en: s.slice(0, idx).trim(), ko: s.slice(idx).trim() };
+}
+
+function parseDialogueText(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const days = [];
+  const seenDays = new Set();
+  let current = null;
+  let stopped = false;
+  const skipped = [];
+
+  for (const line of lines) {
+    if (stopped) break;
+
+    const dayMatch = line.match(/^Day\s*(\d+)[.,]?\s*(.*)$/i);
+    if (dayMatch) {
+      const num = parseInt(dayMatch[1], 10);
+      if (seenDays.has(num)) { stopped = true; break; }
+      if (current) {
+        if (current.lines.length > 0) days.push(current);
+        else skipped.push(current.day);
+      }
+      seenDays.add(num);
+      const { en, ko } = splitEnKo(dayMatch[2] || '');
+      current = { day: num, titleEn: en, titleKo: ko, lines: [] };
+      continue;
+    }
+
+    const lineMatch = line.match(/^([A-Za-z])[:\s]+(.+)$/);
+    if (lineMatch && current) {
+      const speaker = lineMatch[1].toUpperCase();
+      const { en, ko } = splitEnKo(lineMatch[2]);
+      if (en && ko) current.lines.push({ speaker, en, ko });
+      continue;
+    }
+  }
+  if (current) {
+    if (current.lines.length > 0) days.push(current);
+    else skipped.push(current.day);
+  }
+
+  days.sort((a,b) => a.day - b.day);
+  return { days, skipped };
+}
+
+function buildDeckFromParsed(days) {
+  return days.map(d => ({
+    day: d.day,
+    titleEn: d.titleEn,
+    titleKo: d.titleKo,
+    lines: d.lines,
+    status: 'new',
+    stageIndex: -1,
+    nextReview: null,
+    learnedDate: null
+  }));
+}
+
+let deckState = loadDeck();
+let settingsState = loadSettings();
+
+function getPendingNew() {
+  if (!deckState) return [];
+  return deckState.days.filter(d => d.status === 'new').sort((a,b) => a.day - b.day);
+}
+function getDueReviews() {
+  if (!deckState) return [];
+  const today = todayStr();
+  return deckState.days.filter(d => d.status === 'learning' && d.nextReview && d.nextReview <= today)
+    .sort((a,b) => a.day - b.day);
+}
+
+function renderHeader() {
+  const el = document.getElementById('headerStat');
+  if (!deckState) { el.textContent = ''; return; }
+  const mastered = deckState.days.filter(d => d.status === 'mastered').length;
+  el.textContent = `완료 ${mastered} / ${deckState.days.length}`;
+}
+
+function dayCardHtml(d, opts) {
+  const sub = opts && opts.sub ? opts.sub : (d.lines.length + '개 문장');
+  return `<div class="card" data-day="${d.day}">
+    <div class="left">
+      <div class="day-badge">Day ${String(d.day).padStart(3,'0')}</div>
+      <div class="title">${escapeHtml(d.titleEn)}</div>
+      <div class="sub">${escapeHtml(sub)}</div>
+    </div>
+    <button class="btn btn-primary btn-sm study-btn" data-day="${d.day}">학습</button>
+  </div>`;
+}
+
+function escapeHtml(s) {
+  return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderHome() {
+  const newListEl = document.getElementById('newList');
+  const reviewListEl = document.getElementById('reviewList');
+
+  if (!deckState || deckState.days.length === 0) {
+    newListEl.innerHTML = `<div class="empty"><div class="big">📄</div>먼저 [가져오기] 탭에서<br>워드 문서를 업로드하세요.</div>`;
+    reviewListEl.innerHTML = '';
+    return;
+  }
+
+  const daily = loadDaily();
+  const pendingNew = getPendingNew();
+  const remainCapacity = Math.max(0, settingsState.pace - daily.newIntroduced);
+  const todaysNew = pendingNew.slice(0, remainCapacity);
+
+  if (todaysNew.length === 0) {
+    if (pendingNew.length === 0) {
+      newListEl.innerHTML = `<div class="empty">모든 다이얼로그를 시작했어요 🎉</div>`;
+    } else {
+      newListEl.innerHTML = `<div class="empty">오늘 신규 학습 목표를 채웠어요.<br>더 하고 싶으면 아래 버튼을 눌러주세요.</div>
+      <button class="btn btn-outline btn-block" id="moreNewBtn" style="margin-top:8px;">신규 항목 더 학습하기</button>`;
+    }
+  } else {
+    newListEl.innerHTML = todaysNew.map(d => dayCardHtml(d, {sub: '신규 · ' + d.lines.length + '개 문장'})).join('');
+  }
+
+  const due = getDueReviews();
+  if (due.length === 0) {
+    reviewListEl.innerHTML = `<div class="empty">오늘 복습할 항목이 없어요.</div>`;
+  } else {
+    reviewListEl.innerHTML = due.map(d => dayCardHtml(d, {sub: '복습 예정일 ' + d.nextReview})).join('');
+  }
+
+  document.querySelectorAll('.study-btn').forEach(btn => {
+    btn.addEventListener('click', () => openStudy(parseInt(btn.dataset.day, 10)));
+  });
+  const moreBtn = document.getElementById('moreNewBtn');
+  if (moreBtn) moreBtn.addEventListener('click', () => {
+    settingsState.__tempExtra = true;
+    renderAllForcedNew();
+  });
+  renderHeader();
+}
+
+function renderAllForcedNew() {
+  const newListEl = document.getElementById('newList');
+  const pendingNew = getPendingNew().slice(0, 5);
+  newListEl.innerHTML = pendingNew.map(d => dayCardHtml(d, {sub: '신규 · ' + d.lines.length + '개 문장'})).join('');
+  document.querySelectorAll('.study-btn').forEach(btn => {
+    btn.addEventListener('click', () => openStudy(parseInt(btn.dataset.day, 10)));
+  });
+}
+
+function statusBadgeHtml(d) {
+  const today = todayStr();
+  if (d.status === 'mastered') return `<span class="badge badge-mastered">완료</span>`;
+  if (d.status === 'new') return `<span class="badge badge-new">신규</span>`;
+  if (d.status === 'learning') {
+    if (d.nextReview && d.nextReview <= today) return `<span class="badge badge-due">복습 필요</span>`;
+    return `<span class="badge badge-learning">${d.nextReview}</span>`;
+  }
+  return '';
+}
+
+function renderAllDays() {
+  const el = document.getElementById('allDaysList');
+  if (!deckState || deckState.days.length === 0) {
+    el.innerHTML = `<div class="empty">가져온 다이얼로그가 없어요.</div>`;
+    return;
+  }
+  const rows = deckState.days.slice().sort((a,b)=>a.day-b.day).map(d => `
+    <div class="day-list-row">
+      <div style="flex:1; min-width:0; overflow:hidden;">
+        <span style="color:#999; font-size:11px;">Day${String(d.day).padStart(3,'0')}</span>
+        <span style="margin-left:6px;">${escapeHtml(d.titleEn)}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        ${statusBadgeHtml(d)}
+        <button class="btn btn-outline btn-sm study-btn" data-day="${d.day}">보기</button>
+      </div>
+    </div>
+  `).join('');
+  el.innerHTML = rows;
+  document.querySelectorAll('#allDaysList .study-btn').forEach(btn => {
+    btn.addEventListener('click', () => openStudy(parseInt(btn.dataset.day, 10)));
+  });
+}
+
+let currentStudyDay = null;
+
+function openStudy(dayNum) {
+  const d = deckState.days.find(x => x.day === dayNum);
+  if (!d) return;
+  currentStudyDay = d;
+  document.getElementById('studyTitleEn').textContent = 'Day ' + String(d.day).padStart(3,'0') + '. ' + d.titleEn;
+  document.getElementById('studyTitleKo').textContent = d.titleKo;
+
+  const linesEl = document.getElementById('studyLines');
+  linesEl.innerHTML = d.lines.map((l, i) => `
+    <div class="line-row" data-idx="${i}">
+      <div class="speaker">${l.speaker}</div>
+      <div class="ko">${escapeHtml(l.ko)}</div>
+      <div class="en">${escapeHtml(l.en)}</div>
+    </div>
+  `).join('');
+
+  const controlsEl = document.getElementById('studyControls');
+  if (d.status === 'new') {
+    controlsEl.innerHTML = `
+      <button class="btn btn-outline btn-block" id="revealBtn">정답(영어) 보기</button>
+      <button class="btn speak-btn" id="speakBtn">🔊 영어로 듣기</button>
+      <button class="btn btn-primary btn-block" id="learnedBtn" style="margin-top:10px;">오늘 학습 완료 (내일부터 복습 시작)</button>
+    `;
+  } else {
+    controlsEl.innerHTML = `
+      <button class="btn btn-outline btn-block" id="revealBtn">정답(영어) 보기</button>
+      <button class="btn speak-btn" id="speakBtn">🔊 영어로 듣기</button>
+      <div class="rate-row">
+        <button class="btn btn-danger" id="rateAgain">❌ 아직이에요</button>
+        <button class="btn btn-success" id="rateGood">✅ 기억났어요</button>
+      </div>
+    `;
+  }
+
+  document.getElementById('studyModal').classList.remove('hidden');
+
+  document.getElementById('revealBtn').addEventListener('click', () => {
+    document.querySelectorAll('#studyLines .line-row').forEach(r => r.classList.add('revealed'));
+    document.getElementById('revealBtn').style.display = 'none';
+  });
+  document.getElementById('speakBtn').addEventListener('click', () => speakDialogue(d));
+
+  const learnedBtn = document.getElementById('learnedBtn');
+  if (learnedBtn) learnedBtn.addEventListener('click', () => markNewAsLearned(d));
+
+  const rateAgain = document.getElementById('rateAgain');
+  if (rateAgain) rateAgain.addEventListener('click', () => rateReview(d, 'again'));
+  const rateGood = document.getElementById('rateGood');
+  if (rateGood) rateGood.addEventListener('click', () => rateReview(d, 'good'));
+}
+
+function speakDialogue(d) {
+  if (!window.speechSynthesis) { alert('이 브라우저는 음성 읽기를 지원하지 않아요.'); return; }
+  window.speechSynthesis.cancel();
+  const text = d.lines.map(l => l.en).join('. ');
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = 0.95;
+  window.speechSynthesis.speak(utter);
+}
+
+function markNewAsLearned(d) {
+  const today = todayStr();
+  d.status = 'learning';
+  d.stageIndex = 0;
+  d.learnedDate = today;
+  d.nextReview = addDaysStr(today, STAGE_DAYS[0]);
+
+  const daily = loadDaily();
+  daily.newIntroduced += 1;
+  saveDaily(daily);
+
+  saveDeck(deckState);
+  closeStudy();
+  renderHome();
+  renderAllDays();
+}
+
+function rateReview(d, result) {
+  const today = todayStr();
+  if (result === 'again') {
+    d.stageIndex = 0;
+    d.nextReview = addDaysStr(today, STAGE_DAYS[0]);
+  } else {
+    const next = d.stageIndex + 1;
+    if (next >= STAGE_DAYS.length) {
+      d.status = 'mastered';
+      d.nextReview = null;
+    } else {
+      d.stageIndex = next;
+      d.nextReview = addDaysStr(today, STAGE_DAYS[next]);
+    }
+  }
+  saveDeck(deckState);
+  closeStudy();
+  renderHome();
+  renderAllDays();
+}
+
+function closeStudy() {
+  document.getElementById('studyModal').classList.add('hidden');
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  currentStudyDay = null;
+}
+document.getElementById('closeModal').addEventListener('click', closeStudy);
+document.getElementById('studyModal').addEventListener('click', (e) => {
+  if (e.target.id === 'studyModal') closeStudy();
+});
+
+document.querySelectorAll('nav.tabbar button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabbar button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'list') renderAllDays();
+    if (btn.dataset.tab === 'home') renderHome();
+  });
+});
+
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const resultEl = document.getElementById('importResult');
+  resultEl.innerHTML = `<div class="empty">문서를 분석하는 중...</div>`;
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const { days, skipped } = parseDialogueText(result.value);
+
+    if (days.length === 0) {
+      resultEl.innerHTML = `<div class="warn-box">다이얼로그를 인식하지 못했어요. "Day001. 영어제목 한글제목" / "A: 영어문장 한글번역" 형식인지 확인해주세요.</div>`;
+      return;
+    }
+
+    let html = `<div class="empty" style="color:#2f7a2f;">✅ ${days.length}개 다이얼로그를 가져왔어요.</div>`;
+    if (skipped.length > 0) {
+      html += `<div class="warn-box">자동 인식에 실패한 항목: Day ${skipped.join(', ')}. 문서 형식을 확인 후 다시 시도해주세요.</div>`;
+    }
+    html += `<button class="btn btn-primary btn-block" id="confirmImportBtn" style="margin-top:10px;">이 데이터로 시작하기</button>`;
+    resultEl.innerHTML = html;
+
+    document.getElementById('confirmImportBtn').addEventListener('click', () => {
+      const existing = loadDeck();
+      if (existing && existing.days.length > 0) {
+        if (!confirm('기존에 저장된 학습 진도가 있어요. 덮어쓸까요? (진행 상황이 사라져요)')) return;
+      }
+      deckState = { days: buildDeckFromParsed(days), importedAt: todayStr(), sourceName: file.name };
+      saveDeck(deckState);
+      resultEl.innerHTML = `<div class="empty" style="color:#2f7a2f;">저장 완료! [오늘] 탭에서 학습을 시작하세요.</div>`;
+      renderHome();
+      renderAllDays();
+    });
+  } catch (err) {
+    resultEl.innerHTML = `<div class="warn-box">문서를 읽는 중 오류가 발생했어요: ${escapeHtml(err.message || String(err))}</div>`;
+  }
+});
+
+const paceSelect = document.getElementById('paceSelect');
+paceSelect.value = String(settingsState.pace || 1);
+paceSelect.addEventListener('change', () => {
+  settingsState.pace = parseInt(paceSelect.value, 10);
+  saveSettings(settingsState);
+  renderHome();
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!deckState) { alert('내보낼 데이터가 없어요.'); return; }
+  const blob = new Blob([JSON.stringify({ deck: deckState, settings: settingsState }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dialogue_backup_' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importJsonInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if (!confirm('백업 데이터를 불러오면 현재 진도를 덮어써요. 계속할까요?')) return;
+    deckState = parsed.deck;
+    settingsState = parsed.settings || settingsState;
+    saveDeck(deckState);
+    saveSettings(settingsState);
+    paceSelect.value = String(settingsState.pace || 1);
+    renderHome();
+    renderAllDays();
+    alert('불러오기 완료');
+  } catch (err) {
+    alert('파일을 읽지 못했어요: ' + err.message);
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('정말 모든 학습 데이터를 삭제할까요? 이 작업은 되돌릴 수 없어요.')) return;
+  localStorage.removeItem(DECK_KEY);
+  localStorage.removeItem(SETTINGS_KEY);
+  localStorage.removeItem(DAILY_KEY);
+  deckState = null;
+  settingsState = { pace: 1 };
+  renderHome();
+  renderAllDays();
+  paceSelect.value = '1';
+  alert('삭제 완료');
+});
+
+renderHome();
+renderAllDays();
+renderHeader();
+</script>
+</body>
+</html>
