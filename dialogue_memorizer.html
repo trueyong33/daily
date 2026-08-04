@@ -307,8 +307,10 @@ function getDueReviews() {
 function renderHeader() {
   const el = document.getElementById('headerStat');
   if (!deckState) { el.textContent = ''; return; }
+  const total = deckState.days.length;
   const mastered = deckState.days.filter(d => d.status === 'mastered').length;
-  el.textContent = `완료 ${mastered} / ${deckState.days.length}`;
+  const learning = deckState.days.filter(d => d.status === 'learning').length;
+  el.textContent = `진행 ${learning + mastered} / ${total} · 완료 ${mastered}`;
 }
 
 function dayCardHtml(d, opts) {
